@@ -1,0 +1,7 @@
+{
+  "github.copilot.chat.preprompts": [
+    "Always check if code work aligns with a Jira issue before suggesting solutions.",
+    "If a TODO/FIXME exists, prompt to create or link a Jira issue.",
+    "Remind the developer to update documentation in Confluence MCP after completing a Jira story."
+  ]
+}
