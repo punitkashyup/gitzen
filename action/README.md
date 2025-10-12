@@ -277,37 +277,114 @@ Remediation Steps:
 
 ## 🔒 Privacy & Security
 
-### What We Scan
-- ✅ File paths and line numbers
-- ✅ Commit hashes
-- ✅ Secret types (e.g., "AWS Key")
-- ✅ SHA-256 hashes of detected secrets
+GitZen is designed with privacy-first principles. **Your source code and actual secret values NEVER leave your repository.**
 
-### What We DON'T Collect
-- ❌ Source code
-- ❌ Actual secret values
-- ❌ Code context around secrets
-- ❌ File contents
+### Privacy-Safe Metadata Extraction
 
-### API Reporting (Optional)
+When secrets are detected, GitZen extracts ONLY the following metadata:
 
-When configured with `api_endpoint` and `api_key`, the action sends only privacy-safe metadata:
+#### ✅ What We Extract
+- **File paths** - Relative paths within your repository (e.g., `src/config.js`)
+- **Line numbers** - Where the secret was found (e.g., line 15)
+- **Commit hashes** - Git commit SHA where the secret was introduced
+- **Secret types** - Rule ID/category (e.g., `aws-access-token`, `github-pat`)
+- **SHA-256 hashes** - One-way hash of the secret value (for deduplication, NOT reversible)
+- **Author hashes** - SHA-256 hash of commit author email (privacy-preserving)
+- **Severity levels** - Risk classification (critical, high, medium, low)
+- **Entropy scores** - Randomness measurement of the detected string
+- **Timestamps** - When the scan was performed
+
+#### ❌ What We NEVER Extract
+- ❌ **Source code** - No code snippets or file contents
+- ❌ **Actual secret values** - The real API keys, tokens, passwords, etc.
+- ❌ **Code context** - No surrounding lines or code structure
+- ❌ **File contents** - No full or partial file data
+- ❌ **Email addresses** - Only irreversible SHA-256 hashes
+- ❌ **Commit messages** - No git commit details beyond SHA
+
+### SHA-256 Hashing
+
+All sensitive values are hashed using SHA-256 before being stored or transmitted:
+
+```bash
+# Example: Email address hashing
+Input: "developer@company.com"
+Output: "973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b"
+
+# Example: Secret value hashing
+Input: "AKIAIOSFODNN7EXAMPLE"
+Output: "sha256:1a5d44a2dca19669d72edf4c4f1c27c4c1ca4b4408fbb17f6ce4ad452d78ddb3"
+```
+
+**Why SHA-256?**
+- ✅ One-way function (cannot be reversed)
+- ✅ Deterministic (same input = same hash)
+- ✅ Collision-resistant (virtually impossible to find two inputs with same hash)
+- ✅ Industry standard for cryptographic hashing
+
+### Metadata JSON Schema
+
+GitZen follows a strict JSON schema that validates metadata structure and ensures no prohibited fields (like `Secret`, `Match`, `Email`, `code`) are included.
+
+**Schema Location:** `schemas/metadata-schema.json`
+
+**Example metadata structure:**
 
 ```json
 {
-  "repo_name": "yourorg/yourrepo",
-  "commit_hash": "abc123...",
+  "version": "1.0.0",
+  "scan_context": {
+    "repo_name": "yourorg/yourrepo",
+    "repo_owner": "yourorg",
+    "branch": "main",
+    "commit_hash": "abc123...",
+    "trigger_type": "pull_request",
+    "pr_number": 42,
+    "scan_timestamp": "2025-10-13T10:30:00Z"
+  },
   "findings": [
     {
+      "finding_id": "ae78f0bd945095...",
       "file_path": "src/config.js",
       "line_number": 15,
+      "commit_hash": "a1b2c3d",
+      "author_hash": "973dfe463ec857...",
       "secret_type": "aws-access-token",
-      "secret_hash": "sha256:...",
-      "severity": "high"
+      "secret_hash": "sha256:1a5d44a2dca196...",
+      "entropy": 3.5,
+      "severity": "high",
+      "tags": ["high", "aws"]
     }
-  ]
+  ],
+  "summary": {
+    "total_findings": 1,
+    "by_severity": {"critical": 0, "high": 1, "medium": 0, "low": 0},
+    "by_type": {"aws-access-token": 1},
+    "unique_files": 1
+  }
 }
 ```
+
+### Privacy Validation
+
+Every metadata extraction is automatically validated to ensure privacy compliance:
+
+1. **Prohibited Field Check** - Verifies no sensitive fields exist
+2. **Schema Validation** - Confirms structure matches expected format
+3. **Hash Format Validation** - Ensures all hashes are proper SHA-256
+4. **Automated Tests** - 7 comprehensive privacy tests run on every build
+
+**Test Script:** `scripts/test-privacy.sh`
+
+### API Reporting (Optional)
+
+When configured with `api_endpoint` and `api_key`, the action sends ONLY the privacy-safe metadata shown above. The API integration is optional and disabled by default.
+
+**Key Points:**
+- 🔒 HTTPS only (enforced)
+- 🔐 API key authentication
+- ⚠️ Failed API calls don't block PRs
+- 📊 Full metadata visibility (logged before sending)
 
 ## 🛠️ Troubleshooting
 
