@@ -1,0 +1,155 @@
+name: 'GitZen Secret Scanner'
+description: 'Scan pull requests for exposed secrets using Gitleaks'
+author: 'GitZen Team'
+
+branding:
+  icon: 'shield'
+  color: 'red'
+
+inputs:
+  github_token:
+    description: 'GitHub token for posting comments'
+    required: true
+    default: ${{ github.token }}
+  
+  gitleaks_version:
+    description: 'Version of Gitleaks to use'
+    required: false
+    default: 'v8.18.4'
+  
+  config_path:
+    description: 'Path to Gitleaks configuration file'
+    required: false
+    default: '.gitleaks.toml'
+  
+  fail_on_detection:
+    description: 'Fail the action if secrets are detected'
+    required: false
+    default: 'true'
+  
+  post_comment:
+    description: 'Post scan results as PR comment'
+    required: false
+    default: 'true'
+  
+  api_endpoint:
+    description: 'API endpoint to send scan results (optional)'
+    required: false
+    default: ''
+  
+  api_key:
+    description: 'API key for authentication (required if api_endpoint is set)'
+    required: false
+    default: ''
+  
+  scan_path:
+    description: 'Path to scan (default: current directory)'
+    required: false
+    default: '.'
+
+outputs:
+  findings_count:
+    description: 'Number of secrets detected'
+    value: ${{ steps.scan.outputs.findings_count }}
+  
+  scan_status:
+    description: 'Scan status (success/failure)'
+    value: ${{ steps.scan.outputs.scan_status }}
+  
+  report_url:
+    description: 'URL to the full scan report'
+    value: ${{ steps.scan.outputs.report_url }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Gitleaks
+      shell: bash
+      run: |
+        echo "🔍 Setting up Gitleaks ${{ inputs.gitleaks_version }}..."
+        
+        # Download Gitleaks binary
+        GITLEAKS_VERSION="${{ inputs.gitleaks_version }}"
+        OS="linux"
+        ARCH="x64"
+        
+        # Determine OS and architecture
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+          OS="darwin"
+        fi
+        
+        if [[ "$(uname -m)" == "arm64" ]] || [[ "$(uname -m)" == "aarch64" ]]; then
+          ARCH="arm64"
+        fi
+        
+        DOWNLOAD_URL="https://github.com/gitleaks/gitleaks/releases/download/${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION#v}_${OS}_${ARCH}.tar.gz"
+        
+        echo "📥 Downloading from: $DOWNLOAD_URL"
+        curl -sSfL "$DOWNLOAD_URL" | tar -xz
+        chmod +x gitleaks
+        
+        # Verify installation
+        ./gitleaks version
+        echo "✅ Gitleaks installed successfully"
+    
+    - name: Run Gitleaks Scan
+      id: scan
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+      run: |
+        echo "🔍 Starting secret scan..."
+        
+        SCAN_PATH="${{ inputs.scan_path }}"
+        CONFIG_PATH="${{ inputs.config_path }}"
+        
+        # Create output directory
+        mkdir -p gitleaks-reports
+        
+        # Run Gitleaks scan
+        SCAN_EXIT_CODE=0
+        ./gitleaks detect \
+          --source="$SCAN_PATH" \
+          --config="$CONFIG_PATH" \
+          --report-format=json \
+          --report-path=gitleaks-reports/results.json \
+          --verbose \
+          --no-git || SCAN_EXIT_CODE=$?
+        
+        # Check if results file exists
+        if [ ! -f "gitleaks-reports/results.json" ]; then
+          echo "[]" > gitleaks-reports/results.json
+        fi
+        
+        # Count findings
+        FINDINGS_COUNT=$(jq '. | length' gitleaks-reports/results.json)
+        echo "findings_count=$FINDINGS_COUNT" >> $GITHUB_OUTPUT
+        
+        # Determine scan status
+        if [ "$FINDINGS_COUNT" -eq 0 ]; then
+          echo "scan_status=success" >> $GITHUB_OUTPUT
+          echo "✅ No secrets detected!"
+        else
+          echo "scan_status=failure" >> $GITHUB_OUTPUT
+          echo "⚠️  Found $FINDINGS_COUNT potential secret(s)"
+        fi
+        
+        # Generate summary
+        echo "## 🔐 GitZen Secret Scan Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Scan Status:** $([ "$FINDINGS_COUNT" -eq 0 ] && echo '✅ Clean' || echo "⚠️  $FINDINGS_COUNT finding(s)")" >> $GITHUB_STEP_SUMMARY
+        echo "**Files Scanned:** $(find "$SCAN_PATH" -type f | wc -l)" >> $GITHUB_STEP_SUMMARY
+        echo "**Gitleaks Version:** ${{ inputs.gitleaks_version }}" >> $GITHUB_STEP_SUMMARY
+        
+        # Exit with appropriate code
+        if [ "${{ inputs.fail_on_detection }}" == "true" ] && [ "$FINDINGS_COUNT" -gt 0 ]; then
+          exit 1
+        fi
+    
+    - name: Upload Scan Results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: gitleaks-report
+        path: gitleaks-reports/
+        retention-days: 30
