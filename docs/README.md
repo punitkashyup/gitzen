@@ -49,7 +49,7 @@ Historical records of completed sprints.
 | Sprint | Status | Points | Dates |
 |--------|--------|--------|-------|
 | Sprint 0 - Foundation | ✅ Complete | 13/13 | Oct 15-28, 2025 |
-| Sprint 1 - GitHub Action Core | 🔄 In Progress | 13/34 | Oct 29 - Nov 11, 2025 |
+| Sprint 1 - GitHub Action Core | ✅ Complete | 29/34 | Oct 29 - Nov 11, 2025 |
 | Sprint 2 - Enhanced Scanning | 📅 Planned | - | Nov 12-25, 2025 |
 
 ## 🎯 Current Sprint
@@ -60,9 +60,9 @@ Focus: Build the core GitHub Action for secret detection
 
 Stories:
 - GITZ-12: Implement secret detection (13 pts) ✅ Done
-- GITZ-13: Post scan results as PR comments (8 pts) 🔄 In Progress  
-- GITZ-14: Extract privacy-safe metadata (8 pts) 📋 To Do
-- GITZ-15: Configure exclusions and allowlists (5 pts) 📋 To Do
+- GITZ-13: Post scan results as PR comments (8 pts) ✅ Done
+- GITZ-14: Extract privacy-safe metadata (8 pts) ✅ Done
+- GITZ-15: Configure exclusions and allowlists (5 pts) 📋 To Do (Sprint 2)
 
 ## 📝 Document Conventions
 
