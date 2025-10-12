@@ -85,7 +85,98 @@ jobs:
 | `scan_status` | Scan status (`success`/`failure`) |
 | `report_url` | URL to full scan report (if API configured) |
 
-## 🔧 Configuration
+## � Pull Request Comments
+
+GitZen automatically posts detailed scan results as comments on pull requests. The comments are **intelligently updated** rather than creating duplicates.
+
+### Comment Features
+
+✅ **Smart Updates** - Updates existing comments instead of creating duplicates  
+✅ **New Findings Badge** - Shows 🆕 badge for newly detected secrets  
+✅ **Resolved Tracking** - Shows ✅ badge for resolved secrets from previous scans  
+✅ **Severity Indicators** - Color-coded icons (🔴 Critical, 🟡 High, 🟢 Medium, 🔵 Low)  
+✅ **Collapsible Sections** - Long finding lists are collapsed by default  
+✅ **Detailed Context** - Shows file path, line number, commit hash, and secret type  
+✅ **Remediation Guidance** - Provides actionable next steps and resources
+
+### Example: Clean Scan
+
+```markdown
+## 🔐 GitZen Secret Scan Results
+
+✅ **No secrets detected!**
+
+Your pull request passed the security scan. Great job! 🎉
+
+**Scan Details:**
+- Files Scanned: 42
+- Gitleaks Version: v8.18.4
+- Scan Time: 2024-10-13 14:23:45 UTC
+```
+
+### Example: With Findings
+
+```markdown
+## 🔐 GitZen Secret Scan Results
+
+⚠️ **3 potential secrets detected**
+
+### 📊 Severity Breakdown
+- 🔴 Critical: 1
+- 🟡 High: 1
+- 🟢 Medium: 1
+
+### 🆕 New Findings (2)
+<details>
+<summary>Click to expand findings</summary>
+
+#### 🔴 AWS Access Token 🆕
+**File:** `src/config/aws.js` (Line 24)  
+**Commit:** `a1b2c3d`  
+**Rule:** `aws-access-token`
+
+#### 🟡 GitHub Token 🆕
+**File:** `scripts/deploy.sh` (Line 15)  
+**Commit:** `b3c4d5e`  
+**Rule:** `github-pat`
+
+</details>
+
+### ✅ Resolved Findings (1)
+<details>
+<summary>Click to expand</summary>
+
+#### 🔴 API Key ✅
+**File:** `api/keys.py` (Line 42)  
+**Rule:** `generic-api-key`
+
+</details>
+
+### 🔧 Remediation Steps
+1. **Never commit secrets** - Remove them immediately
+2. **Rotate credentials** - Assume exposed secrets are compromised
+3. **Use environment variables** - Store secrets securely
+4. **Clean Git history** - Use `git-filter-repo` if needed
+
+### 📚 Resources
+- [Removing Secrets Guide](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository)
+- [Secret Management Best Practices](https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html)
+
+---
+*This scan is privacy-preserving and does not store your code or secret values.*
+```
+
+### Comment Comparison Logic
+
+The PR comment system tracks changes between scans:
+
+- **🆕 New Findings**: Secrets detected in current scan but not previous
+- **✅ Resolved Findings**: Secrets from previous scan no longer detected  
+- **Persistent Findings**: Secrets in both scans (no special badge)
+
+This helps you track remediation progress over time.
+
+## �🔧 Configuration
 
 ### Create `.gitleaks.toml`
 
