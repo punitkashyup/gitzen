@@ -38,11 +38,14 @@ A privacy-first, automated solution for detecting and safely remediating exposed
 
 ## 📚 Documentation
 
-- **[Complete Project Documentation](./PROJECT_DOCUMENTATION.md)** - Full technical specifications, architecture, and business plan
-- **[Development Guide](./DEVELOPMENT.md)** - Docker setup and local development
-- **[CI/CD Documentation](./CI_CD.md)** - GitHub Actions pipeline and testing
-- **[Setup Guide](./SETUP_GUIDE.md)** - Quick start and configuration instructions
-- **[Dashboard Mockups](./dashboard-mockup.md)** - UI/UX design and wireframes
+**[📖 Complete Documentation Index](./docs/README.md)** - Browse all documentation
+
+### Quick Links
+- **[Development Guide](./docs/development/DEVELOPMENT.md)** - Docker setup and local development
+- **[CI/CD Pipeline](./docs/development/CI_CD.md)** - GitHub Actions pipeline and testing
+- **[Setup Guide](./docs/guides/SETUP_GUIDE.md)** - Quick start and configuration instructions
+- **[Project Documentation](./docs/architecture/PROJECT_DOCUMENTATION.md)** - Full technical specifications
+- **[Sprint History](./docs/sprints/)** - See what we've built
 
 ---
 
