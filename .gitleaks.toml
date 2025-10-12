@@ -1,0 +1,76 @@
+# Gitleaks Configuration
+# https://github.com/gitleaks/gitleaks
+
+title = "Gitleaks Configuration for Secret Scan"
+
+[extend]
+# Extend default Gitleaks rules
+useDefault = true
+
+# Custom rules can be added below
+[[rules]]
+id = "custom-api-key-pattern"
+description = "Custom API Key Pattern"
+regex = '''(?i)(api[_-]?key|apikey)['":\s=]+([a-zA-Z0-9_\-]{32,})'''
+tags = ["api-key", "custom"]
+severity = "high"
+
+[[rules]]
+id = "custom-bearer-token"
+description = "Bearer Token in Code"
+regex = '''(?i)bearer\s+[a-zA-Z0-9_\-\.]{20,}'''
+tags = ["token", "bearer"]
+severity = "high"
+
+[[rules]]
+id = "custom-private-key-header"
+description = "Private Key Header"
+regex = '''-----BEGIN\s+(RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----'''
+tags = ["private-key", "critical"]
+severity = "critical"
+
+# Allowlist - paths to exclude from scanning
+[allowlist]
+description = "Allowlisted files and patterns"
+paths = [
+    '''\.git/''',
+    '''node_modules/''',
+    '''vendor/''',
+    '''dist/''',
+    '''build/''',
+    '''\.min\.js$''',
+    '''\.map$''',
+    '''package-lock\.json$''',
+    '''yarn\.lock$''',
+    '''Pipfile\.lock$''',
+    '''poetry\.lock$''',
+]
+
+# Allowlist specific patterns that are false positives
+regexes = [
+    # Example test keys (not real)
+    '''AKIA[A-Z0-9]{16}.*test''',
+    '''example\.com''',
+    '''localhost''',
+    '''127\.0\.0\.1''',
+    '''0\.0\.0\.0''',
+    # Common false positives
+    '''(?i)your[_-]?api[_-]?key[_-]?here''',
+    '''(?i)replace[_-]?with[_-]?actual''',
+    '''(?i)dummy[_-]?secret''',
+    '''(?i)fake[_-]?token''',
+]
+
+# Stopwords - if these appear near a secret, it might be a false positive
+stopwords = [
+    "example",
+    "test",
+    "dummy",
+    "fake",
+    "sample",
+    "placeholder",
+    "your_api_key_here",
+    "replace_me",
+    "CHANGEME",
+    "TODO",
+]
