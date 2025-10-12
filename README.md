@@ -4,6 +4,7 @@ A privacy-first, automated solution for detecting and safely remediating exposed
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Status: Planning](https://img.shields.io/badge/Status-Planning-blue.svg)](https://github.com/yourorg/secret-scan)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF.svg)](https://github.com/yourorg/secret-scan/actions)
 
 ---
 
@@ -38,6 +39,8 @@ A privacy-first, automated solution for detecting and safely remediating exposed
 ## 📚 Documentation
 
 - **[Complete Project Documentation](./PROJECT_DOCUMENTATION.md)** - Full technical specifications, architecture, and business plan
+- **[Development Guide](./DEVELOPMENT.md)** - Docker setup and local development
+- **[CI/CD Documentation](./CI_CD.md)** - GitHub Actions pipeline and testing
 - **[Setup Guide](./SETUP_GUIDE.md)** - Quick start and configuration instructions
 - **[Dashboard Mockups](./dashboard-mockup.md)** - UI/UX design and wireframes
 
