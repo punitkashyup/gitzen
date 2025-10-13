@@ -1,6 +1,20 @@
 # GitZen Documentation
 
-Welcome to the GitZen documentation! This directory contains all technical documentation, guides, and sprint summaries.
+Welcome to the GitZen documenta## 🎯 Current Sprint
+
+**Sprint 1: GitHub Action Core** ✅ COMPLETE
+
+Focus: Build the core GitHub Action for secret detection
+
+Stories:
+- GITZ-12: Implement secret detection (13 pts) ✅ Done
+- GITZ-13: Post scan results as PR comments (8 pts) ✅ Done
+- GITZ-14: Extract privacy-safe metadata (8 pts) ✅ Done
+- GITZ-15: Configure exclusions and allowlists (5 pts) ✅ Done
+
+**Next Sprint: Sprint 2 - Enhanced Scanning** (Nov 12-25, 2025)
+
+Stay tuned for the next phase of development!directory contains all technical documentation, guides, and sprint summaries.
 
 ## 📚 Documentation Structure
 
@@ -50,7 +64,7 @@ Historical records of completed sprints.
 | Sprint | Status | Points | Dates |
 |--------|--------|--------|-------|
 | Sprint 0 - Foundation | ✅ Complete | 13/13 | Oct 15-28, 2025 |
-| Sprint 1 - GitHub Action Core | 🔄 In Progress | 34/34 | Oct 29 - Nov 11, 2025 |
+| Sprint 1 - GitHub Action Core | ✅ Complete | 34/34 | Oct 29 - Nov 11, 2025 |
 | Sprint 2 - Enhanced Scanning | 📅 Planned | - | Nov 12-25, 2025 |
 
 ## 🎯 Current Sprint
