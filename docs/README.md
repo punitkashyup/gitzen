@@ -20,6 +20,7 @@ Guides for setting up and working with the development environment.
 Step-by-step guides for common tasks and setup.
 
 - **[Setup Guide](./guides/SETUP_GUIDE.md)** - Quick start and configuration instructions
+- **[Gitleaks Configuration Guide](./guides/GITLEAKS_CONFIG.md)** - Complete guide to configuring path exclusions and allowlists
 - **[GitHub Action Usage](./guides/GITHUB_ACTION.md)** - How to use the GitZen GitHub Action (Coming Soon)
 - **[API Documentation](./guides/API.md)** - Backend API reference (Coming Soon)
 
@@ -49,7 +50,7 @@ Historical records of completed sprints.
 | Sprint | Status | Points | Dates |
 |--------|--------|--------|-------|
 | Sprint 0 - Foundation | ✅ Complete | 13/13 | Oct 15-28, 2025 |
-| Sprint 1 - GitHub Action Core | ✅ Complete | 29/34 | Oct 29 - Nov 11, 2025 |
+| Sprint 1 - GitHub Action Core | 🔄 In Progress | 34/34 | Oct 29 - Nov 11, 2025 |
 | Sprint 2 - Enhanced Scanning | 📅 Planned | - | Nov 12-25, 2025 |
 
 ## 🎯 Current Sprint
@@ -62,7 +63,7 @@ Stories:
 - GITZ-12: Implement secret detection (13 pts) ✅ Done
 - GITZ-13: Post scan results as PR comments (8 pts) ✅ Done
 - GITZ-14: Extract privacy-safe metadata (8 pts) ✅ Done
-- GITZ-15: Configure exclusions and allowlists (5 pts) 📋 To Do (Sprint 2)
+- GITZ-15: Configure exclusions and allowlists (5 pts) � In Progress
 
 ## 📝 Document Conventions
 

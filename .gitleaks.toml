@@ -1,76 +1,369 @@
-# Gitleaks Configuration
-# https://github.com/gitleaks/gitleaks
+# GitZen - Gitleaks Configuration
+# 
+# This configuration provides sensible defaults for secret scanning with
+# comprehensive path exclusions and allowlists to minimize false positives.
+#
+# Documentation: https://github.com/gitleaks/gitleaks#configuration
 
-title = "Gitleaks Configuration for Secret Scan"
+title = "GitZen Secret Scan Configuration"
 
 [extend]
 # Extend default Gitleaks rules
 useDefault = true
 
-# Custom rules can be added below
+# =============================================================================
+# Path-based Allowlist - Exclude Common Directories and File Patterns
+# =============================================================================
+[allowlist]
+description = "Paths and patterns to exclude from scanning"
+
+# Common dependency directories (no secrets expected)
+paths = [
+    # JavaScript/Node.js
+    '''node_modules/''',
+    '''package-lock\.json$''',
+    '''yarn\.lock$''',
+    '''pnpm-lock\.yaml$''',
+    '''\.npm/''',
+    '''\.yarn/''',
+    
+    # Python
+    '''\.venv/''',
+    '''venv/''',
+    '''virtualenv/''',
+    '''__pycache__/''',
+    '''\.pyc$''',
+    '''\.pyo$''',
+    '''\.pyd$''',
+    '''Pipfile\.lock$''',
+    '''poetry\.lock$''',
+    '''\.Python$''',
+    '''pip-log\.txt$''',
+    '''pip-delete-this-directory\.txt$''',
+    '''.tox/''',
+    '''\.pytest_cache/''',
+    
+    # Ruby
+    '''vendor/bundle/''',
+    '''Gemfile\.lock$''',
+    '''\.bundle/''',
+    
+    # PHP
+    '''vendor/''',
+    '''composer\.lock$''',
+    
+    # Go
+    '''go\.sum$''',
+    '''go\.mod$''',
+    
+    # Rust
+    '''Cargo\.lock$''',
+    '''target/debug/''',
+    '''target/release/''',
+    
+    # Java/JVM
+    '''\.gradle/''',
+    '''build/''',
+    '''\.m2/''',
+    '''target/''',
+    
+    # .NET
+    '''bin/''',
+    '''obj/''',
+    '''packages/''',
+    
+    # Build artifacts and generated files
+    '''dist/''',
+    '''build/''',
+    '''out/''',
+    '''output/''',
+    '''\.next/''',
+    '''\.nuxt/''',
+    '''\.output/''',
+    '''coverage/''',
+    '''\.nyc_output/''',
+    '''\.cache/''',
+    '''\.temp/''',
+    '''tmp/''',
+    
+    # Minified files (likely third-party)
+    '''\.min\.js$''',
+    '''\.min\.css$''',
+    '''\.min\.map$''',
+    '''bundle\.js$''',
+    '''bundle\.css$''',
+    
+    # Source maps
+    '''\.map$''',
+    '''-map\.json$''',
+    
+    # Git metadata
+    '''\.git/''',
+    '''\.gitkeep$''',
+    '''\.gitattributes$''',
+    
+    # IDE and editor files
+    '''\.vscode/''',
+    '''\.idea/''',
+    '''\.DS_Store$''',
+    '''\.project$''',
+    '''\.classpath$''',
+    '''\.settings/''',
+    
+    # Documentation build outputs
+    '''_site/''',
+    '''\.docusaurus/''',
+    '''site/''',
+    '''public/''',
+    
+    # Test fixtures and mock data
+    '''fixtures/''',
+    '''__fixtures__/''',
+    '''test/fixtures/''',
+    '''tests/fixtures/''',
+    '''spec/fixtures/''',
+    '''__mocks__/''',
+    '''test/mocks/''',
+    '''tests/mocks/''',
+    '''.snapshots/''',
+    '''__snapshots__/''',
+    
+    # Example and template files (often contain placeholder secrets)
+    '''\.example$''',
+    '''\.template$''',
+    '''\.sample$''',
+    '''example\.env$''',
+    '''\.env\.example$''',
+    '''\.env\.sample$''',
+    '''\.env\.template$''',
+    
+    # Binary and media files
+    '''\.png$''',
+    '''\.jpg$''',
+    '''\.jpeg$''',
+    '''\.gif$''',
+    '''\.svg$''',
+    '''\.ico$''',
+    '''\.pdf$''',
+    '''\.woff$''',
+    '''\.woff2$''',
+    '''\.ttf$''',
+    '''\.eot$''',
+    '''\.otf$''',
+    
+    # Archives
+    '''\.zip$''',
+    '''\.tar$''',
+    '''\.gz$''',
+    '''\.rar$''',
+    '''\.7z$''',
+    
+    # Database files
+    '''\.db$''',
+    '''\.sqlite$''',
+    '''\.sqlite3$''',
+    
+    # Logs
+    '''\.log$''',
+    '''logs/''',
+    
+    # Lock files
+    '''\.lock$''',
+    '''package-lock\.json$''',
+]
+
+# Regular expression patterns to exclude (false positive patterns)
+regexes = [
+    # Exclude example/placeholder secrets (common in documentation)
+    '''(?i)(your|my|their|our)[-_]?(api|secret|token|key|password)''',
+    '''(?i)(example|test|demo|fake|mock|dummy|placeholder|sample)[-_]?(api|secret|token|key|password)''',
+    '''(?i)(INSERT|REPLACE|UPDATE|PUT|ADD).*YOUR[-_]?(API|SECRET|TOKEN|KEY|PASSWORD)''',
+    '''(?i)replace[-_]?with[-_]?actual''',
+    '''(?i)change[-_]?me''',
+    '''(?i)TODO:.*secret''',
+    
+    # Exclude environment variable placeholders
+    '''\$\{[A-Z_]+\}''',
+    '''<%=?\s*[A-Z_]+\s*%>''',
+    '''\$[A-Z_]+''',
+    '''%[A-Z_]+%''',
+    
+    # Exclude template placeholders
+    '''\{\{[^}]+\}\}''',
+    '''\{%[^}]+%\}''',
+    '''<[A-Z_]+>''',
+    '''\[[A-Z_]+\]''',
+    '''<<[A-Z_]+>>''',
+    
+    # Localhost and loopback addresses
+    '''localhost''',
+    '''127\.0\.0\.1''',
+    '''0\.0\.0\.0''',
+    '''::1''',
+    
+    # Example domains
+    '''example\.com''',
+    '''example\.org''',
+    '''example\.net''',
+    '''test\.com''',
+    '''mysite\.com''',
+    
+    # AWS example keys (from AWS documentation)
+    '''AKIAIOSFODNN7EXAMPLE''',
+    '''wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY''',
+    
+    # Generic test/example tokens
+    '''(?i)test[-_]?token[-_]?[0-9]+''',
+    '''(?i)example[-_]?key[-_]?[0-9]+''',
+    '''(?i)abcdef123456''',
+    '''(?i)1234567890''',
+    
+    # Base64 common examples
+    '''YWRtaW4=''',  # 'admin' in base64
+    '''dGVzdA==''',  # 'test' in base64
+    '''ZXhhbXBsZQ==''',  # 'example' in base64
+    '''cGFzc3dvcmQ=''',  # 'password' in base64
+    
+    # Hex patterns that are just examples
+    '''(?i)deadbeef''',
+    '''(?i)cafebabe''',
+    '''(?i)0x[0-9a-f]{8}''',
+]
+
+# Stopwords - common false positive words that appear near secrets
+stopwords = [
+    # Generic placeholders
+    'example',
+    'sample',
+    'test',
+    'demo',
+    'fake',
+    'mock',
+    'dummy',
+    'placeholder',
+    'your',
+    'my',
+    'their',
+    'our',
+    'insert',
+    'replace',
+    'changeme',
+    'change_me',
+    'CHANGE_ME',
+    'TODO',
+    'FIXME',
+    
+    # Common documentation terms
+    'password',
+    'secret',
+    'token',
+    'apikey',
+    'api_key',
+    'api-key',
+    'your_api_key_here',
+    'replace_me',
+    'your_secret_here',
+    
+    # Base64 examples
+    'YWRtaW4=',
+    'dGVzdA==',
+    'ZXhhbXBsZQ==',
+    'cGFzc3dvcmQ=',
+    
+    # Common test values
+    'abcdef',
+    '123456',
+    'abcd1234',
+    'test123',
+    'example123',
+]
+
+# Commit-based allowlist - specific commits to exclude
+commits = [
+    # Add commit SHAs here if you need to allowlist specific commits
+    # Example: 'abc123def456',
+]
+
+# =============================================================================
+# Custom Detection Rules
+# =============================================================================
+
 [[rules]]
 id = "custom-api-key-pattern"
 description = "Custom API Key Pattern"
 regex = '''(?i)(api[_-]?key|apikey)['":\s=]+([a-zA-Z0-9_\-]{32,})'''
-tags = ["api-key", "custom"]
-severity = "high"
+tags = ["api-key", "custom", "high"]
 
 [[rules]]
 id = "custom-bearer-token"
 description = "Bearer Token in Code"
 regex = '''(?i)bearer\s+[a-zA-Z0-9_\-\.]{20,}'''
-tags = ["token", "bearer"]
-severity = "high"
+tags = ["token", "bearer", "high"]
 
 [[rules]]
 id = "custom-private-key-header"
 description = "Private Key Header"
 regex = '''-----BEGIN\s+(RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----'''
 tags = ["private-key", "critical"]
-severity = "critical"
 
-# Allowlist - paths to exclude from scanning
-[allowlist]
-description = "Allowlisted files and patterns"
-paths = [
-    '''\.git/''',
-    '''node_modules/''',
-    '''vendor/''',
-    '''dist/''',
-    '''build/''',
-    '''\.min\.js$''',
-    '''\.map$''',
-    '''package-lock\.json$''',
-    '''yarn\.lock$''',
-    '''Pipfile\.lock$''',
-    '''poetry\.lock$''',
-]
+# =============================================================================
+# Hash-based Allowlist for Known False Positives
+# =============================================================================
+# If you have specific secrets that are false positives, you can allowlist
+# them by their SHA-256 hash. Get the hash from scan results.
+#
+# This is safer than regex allowlisting as it's more specific.
+#
+# To add a hash to the allowlist:
+# 1. Get the secret hash from the scan results (shown as sha256:...)
+# 2. Add it to the secrets array below
+# 3. Include a comment explaining why it's allowlisted
+#
+# Example:
+# [allowlist]
+# secrets = [
+#     "sha256:1a5d44a2dca19669d72edf4c4f1c27c4c1ca4b4408fbb17f6ce4ad452d78ddb3",
+#     # ^ Test secret in test-gitleaks.sh - intentional for testing
+# ]
 
-# Allowlist specific patterns that are false positives
-regexes = [
-    # Example test keys (not real)
-    '''AKIA[A-Z0-9]{16}.*test''',
-    '''example\.com''',
-    '''localhost''',
-    '''127\.0\.0\.1''',
-    '''0\.0\.0\.0''',
-    # Common false positives
-    '''(?i)your[_-]?api[_-]?key[_-]?here''',
-    '''(?i)replace[_-]?with[_-]?actual''',
-    '''(?i)dummy[_-]?secret''',
-    '''(?i)fake[_-]?token''',
-]
-
-# Stopwords - if these appear near a secret, it might be a false positive
-stopwords = [
-    "example",
-    "test",
-    "dummy",
-    "fake",
-    "sample",
-    "placeholder",
-    "your_api_key_here",
-    "replace_me",
-    "CHANGEME",
-    "TODO",
-]
+# =============================================================================
+# Notes and Best Practices
+# =============================================================================
+#
+# 1. Path Patterns:
+#    - Use triple quotes '''pattern''' for regex patterns
+#    - Use forward slashes for paths (works on all platforms)
+#    - End directory patterns with / to match directories
+#    - Use $ for end-of-filename matching
+#
+# 2. Testing Your Configuration:
+#    - Run: gitleaks detect --config .gitleaks.toml --verbose
+#    - Use --log-level=debug to see what's being scanned/skipped
+#    - Check the scan summary for excluded file counts
+#
+# 3. Adding Custom Allowlists:
+#    - Option 1: Use regex patterns in allowlist.regexes[]
+#    - Option 2: Use hash-based allowlist (more specific)
+#    - Option 3: Add stopwords for common false positive terms
+#
+# 4. Performance Tips:
+#    - More specific path exclusions = faster scans
+#    - Exclude large binary files and generated code
+#    - For monorepos, exclude node_modules in each package
+#
+# 5. Monorepo Support:
+#    - You can have multiple .gitleaks.toml files
+#    - Place in subdirectories for package-specific configs
+#    - Use --config flag to specify which one to use
+#
+# 6. Custom Rules:
+#    - Add custom [[rules]] sections for project-specific secrets
+#    - Use appropriate tags: ["critical", "high", "medium", "low"]
+#    - Test custom rules with: gitleaks detect --verbose
+#
+# 7. Updating Configuration:
+#    - Review and update paths/patterns regularly
+#    - Add new false positives to allowlist as discovered
+#    - Document why each allowlist entry exists
+#
+# =============================================================================

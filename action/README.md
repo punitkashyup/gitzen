@@ -178,60 +178,223 @@ This helps you track remediation progress over time.
 
 ## �🔧 Configuration
 
-### Create `.gitleaks.toml`
+### Quick Start
 
-Create a `.gitleaks.toml` file in your repository root:
+GitZen comes with **50+ pre-configured exclusion patterns** and comprehensive allowlists to minimize false positives while maintaining high detection accuracy.
+
+Create a `.gitleaks.toml` file in your repository root. GitZen automatically provides sensible defaults:
 
 ```toml
 title = "Gitleaks Configuration"
 
+# Use Gitleaks' built-in rules plus GitZen's enhancements
 [extend]
 useDefault = true
 
+# Pre-configured with 50+ exclusion patterns
 [allowlist]
 paths = [
-    '''node_modules/''',
+    '''node_modules/''',      # Dependencies
     '''vendor/''',
-    '''dist/''',
+    '''dist/''',              # Build artifacts
+    '''build/''',
+    '''\.min\.js$''',         # Minified files
+    '''fixtures/''',          # Test data
+    '''\.lock$''',            # Lock files
+    # ... and 40+ more patterns
 ]
 
+# Comprehensive regex patterns for false positives
+regexes = [
+    '''(?i)(test|example|dummy)''',    # Test indicators
+    '''localhost''',                    # Development URLs
+    '''your[_-]?api[_-]?key[_-]?here''', # Placeholders
+    # ... and 20+ more patterns
+]
+
+# 30+ stopwords for test data
 stopwords = [
-    "example",
-    "test",
-    "dummy",
+    "example", "test", "dummy", "fake", "sample",
+    "placeholder", "mock", "template", "demo",
+    # ... and 20+ more stopwords
 ]
 ```
 
-### Exclude Paths
+### Path Exclusions
 
-Common paths to exclude from scanning:
+GitZen automatically excludes **50+ common patterns** that typically contain false positives:
+
+#### Dependencies & Build Artifacts
+```toml
+'''node_modules/'''        # Node.js packages
+'''vendor/'''              # Go/PHP dependencies
+'''dist/''', '''build/'''  # Build output
+'''\.min\.js$'''           # Minified JavaScript
+'''coverage/'''            # Test coverage
+```
+
+#### IDE & Version Control
+```toml
+'''.vscode/''', '''.idea/'''  # IDE settings
+'''.git/''', '''.svn/'''      # Version control
+'''\.swp$''', '''\.DS_Store$''' # Editor files
+```
+
+#### Lock Files & Generated Code
+```toml
+'''\.lock$'''              # All lock files
+'''package-lock\.json$'''  # npm lock
+'''__pycache__/'''         # Python cache
+'''\.pyc$''', '''\.class$''' # Compiled files
+```
+
+#### Test Fixtures & Documentation
+```toml
+'''fixtures/'''            # Test data
+'''__mocks__/'''           # Mock data
+'''\.md$'''                # Markdown files
+'''docs/generated/'''      # Generated docs
+```
+
+#### Media & Archives
+```toml
+'''\.png$''', '''\.jpg$'''  # Images
+'''\.mp4$''', '''\.mp3$'''  # Media
+'''\.zip$''', '''\.tar\.gz$''' # Archives
+```
+
+**👉 See the complete list:** [Gitleaks Configuration Guide](../docs/guides/GITLEAKS_CONFIG.md)
+
+### Allowlist for False Positives
+
+GitZen includes comprehensive allowlist patterns for common false positives:
+
+#### Test/Example Secrets
+```toml
+[allowlist]
+regexes = [
+    '''(?i)(AKIA|ghp_|glpat-).*test''',  # AWS/GitHub test keys
+    '''(?i)test.*(secret|token|key)''',  # Test secrets
+]
+```
+
+#### Development URLs
+```toml
+'''localhost''',
+'''127\.0\.0\.1''',
+'''example\.(com|org|net)''',
+```
+
+#### Placeholder Patterns
+```toml
+'''(?i)your[_-]?api[_-]?key[_-]?here''',
+'''(?i)replace[_-]?with[_-]?actual''',
+'''\$\{[A-Z_]+\}''',       # ${API_KEY}
+```
+
+#### Documentation Markers
+```toml
+'''<YOUR_[A-Z_]+>''',      # <YOUR_API_KEY>
+'''(?i)insert[_-]?[a-z]+[_-]?here''',
+```
+
+### Stopwords
+
+Stopwords automatically filter out secrets containing test indicators:
 
 ```toml
 [allowlist]
-paths = [
-    '''\.git/''',
-    '''node_modules/''',
-    '''vendor/''',
-    '''dist/''',
-    '''build/''',
-    '''\.min\.js$''',
-    '''\.map$''',
-    '''package-lock\.json$''',
+stopwords = [
+    # Test indicators
+    "example", "test", "dummy", "fake", "sample",
+    "placeholder", "mock", "fixture", "stub",
+    
+    # Environment indicators
+    "development", "dev", "local", "staging",
+    
+    # Common placeholders
+    "xxx", "abc123", "changeme", "fixme",
+    
+    # Documentation markers
+    "redacted", "not-a-real-secret", "insert-key-here",
 ]
 ```
 
 ### Custom Rules
 
-Add custom secret detection patterns:
+Add organization-specific secret patterns:
 
 ```toml
 [[rules]]
-id = "custom-api-key"
-description = "Custom API Key Pattern"
-regex = '''(?i)api[_-]?key['":\s=]+([a-zA-Z0-9_\-]{32,})'''
-tags = ["api-key", "custom"]
-severity = "high"
+id = "company-internal-token"
+description = "Company's internal service token format"
+regex = '''(?i)ACME-[A-Z]{3}-[0-9]{10}-[a-f0-9]{32}'''
+tags = ["internal-token", "high"]
+keywords = ["ACME-"]
+entropy = 4.0
 ```
+
+### Monorepo Configuration
+
+For monorepos with multiple apps/services:
+
+```toml
+[allowlist]
+paths = [
+    # Frontend app
+    '''apps/frontend/node_modules/''',
+    '''apps/frontend/dist/''',
+    
+    # Backend service
+    '''services/api/venv/''',
+    '''services/api/__pycache__/''',
+    
+    # Shared packages
+    '''packages/*/dist/''',
+]
+```
+
+### Hash-Based Allowlisting
+
+For specific known false positives that can't be filtered by regex:
+
+```bash
+# 1. Calculate SHA-256 hash of the secret
+echo -n "test_secret_12345" | sha256sum
+
+# 2. Add hash to allowlist
+[allowlist.regexes]
+regexes = [
+    '''abc123def456789...''',  # Hash of test_secret_12345
+]
+```
+
+### Testing Your Configuration
+
+GitZen includes a test script to validate your exclusion patterns:
+
+```bash
+./scripts/test-exclusions.sh
+```
+
+This verifies that:
+- ✅ Common paths are properly excluded
+- ✅ Stopwords filter test data correctly
+- ✅ Real secrets are still detected
+
+### Complete Configuration Guide
+
+For detailed explanations, examples, and troubleshooting:
+
+**📖 [Read the Full Gitleaks Configuration Guide](../docs/guides/GITLEAKS_CONFIG.md)**
+
+Topics covered:
+- All 50+ default exclusion patterns explained
+- Regex pattern syntax and examples
+- Hash-based allowlisting walkthrough
+- Common use cases (monorepo, open source, docs sites)
+- Troubleshooting false positives/negatives
+- Best practices and testing strategies
 
 ## 📊 Example Output
 
