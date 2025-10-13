@@ -1,103 +1,235 @@
 """
 Gitzen API - Main Application Entry Point
+
+FastAPI application with comprehensive middleware, error handling,
+and structured logging.
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
-import os
+from fastapi.exceptions import RequestValidationError
+import time
+from app.config import settings
+from app.logging_config import get_logger
+from app.exceptions import (
+    GitzenException,
+    gitzen_exception_handler,
+    validation_exception_handler,
+    http_exception_handler,
+    generic_exception_handler,
+)
+
+logger = get_logger(__name__)
 
 # Create FastAPI application
 app = FastAPI(
-    title="Gitzen API",
-    description="Git Secret Detection & Cleanup Tool API",
-    version="0.1.0",
+    title=settings.APP_NAME,
+    description="Privacy-first Git Secret Detection & Cleanup Tool API",
+    version=settings.APP_VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
+    openapi_url="/openapi.json",
+    debug=settings.DEBUG,
 )
 
-# CORS Configuration
-CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+# Exception Handlers
+app.add_exception_handler(GitzenException, gitzen_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
 
+# Middleware - Order matters! (executed bottom to top)
+
+# 1. CORS Middleware (last middleware to execute, first to receive response)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=settings.get_cors_origins,
+    allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
+    allow_methods=settings.CORS_ALLOW_METHODS,
+    allow_headers=settings.CORS_ALLOW_HEADERS,
 )
 
+# 2. GZip Compression Middleware
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
-# Health Check Endpoint
-@app.get("/health", tags=["Health"])
+# 3. Request Logging Middleware
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    """Log all incoming requests with timing information"""
+    start_time = time.time()
+    
+    # Log request
+    logger.info(
+        f"Request started: {request.method} {request.url.path}",
+        extra={
+            "method": request.method,
+            "path": request.url.path,
+            "query_params": str(request.query_params),
+            "client_host": request.client.host if request.client else None,
+        }
+    )
+    
+    # Process request
+    response = await call_next(request)
+    
+    # Calculate duration
+    duration = time.time() - start_time
+    
+    # Log response
+    logger.info(
+        f"Request completed: {request.method} {request.url.path} - {response.status_code}",
+        extra={
+            "method": request.method,
+            "path": request.url.path,
+            "status_code": response.status_code,
+            "duration_ms": round(duration * 1000, 2),
+        }
+    )
+    
+    # Add custom headers
+    response.headers["X-Process-Time"] = str(round(duration * 1000, 2))
+    response.headers["X-API-Version"] = settings.APP_VERSION
+    
+    return response
+
+
+# ============================================================================
+# Health & Status Endpoints
+# ============================================================================
+
+@app.get("/health", tags=["Health"], response_model=dict)
 async def health_check():
     """
     Health check endpoint for Docker health checks and monitoring.
+    
+    Returns service status, version, and environment information.
     """
     return JSONResponse(
         content={
             "status": "healthy",
-            "service": "gitzen-api",
-            "version": "0.1.0",
+            "service": settings.APP_NAME,
+            "version": settings.APP_VERSION,
+            "environment": settings.APP_ENV,
         },
         status_code=200,
     )
 
 
-# Root Endpoint
-@app.get("/", tags=["Root"])
+@app.get("/", tags=["Root"], response_model=dict)
 async def root():
     """
-    API root endpoint with service information.
+    API root endpoint with service information and navigation.
     """
     return {
-        "message": "Welcome to Gitzen API",
-        "docs": "/docs",
-        "health": "/health",
-        "version": "0.1.0",
+        "message": f"Welcome to {settings.APP_NAME}",
+        "version": settings.APP_VERSION,
+        "documentation": {
+            "swagger": "/docs",
+            "redoc": "/redoc",
+            "openapi": "/openapi.json",
+        },
+        "endpoints": {
+            "health": "/health",
+            "api": settings.API_PREFIX,
+        },
     }
 
 
-# Placeholder API endpoints (to be implemented in GITZ-16, GITZ-17, etc.)
-@app.get("/api/v1/findings", tags=["Findings"])
+# ============================================================================
+# API Router Registration
+# ============================================================================
+
+# TODO: Register routers here as they are created
+# from app.routers import findings, repositories, scans, users
+# app.include_router(findings.router, prefix=settings.API_PREFIX, tags=["Findings"])
+# app.include_router(repositories.router, prefix=settings.API_PREFIX, tags=["Repositories"])
+# app.include_router(scans.router, prefix=settings.API_PREFIX, tags=["Scans"])
+# app.include_router(users.router, prefix=settings.API_PREFIX, tags=["Users"])
+
+
+# ============================================================================
+# Placeholder Endpoints (to be replaced by routers)
+# ============================================================================
+
+@app.get(f"{settings.API_PREFIX}/findings", tags=["Findings"])
 async def get_findings():
     """Placeholder for findings list endpoint"""
-    return {"message": "Findings endpoint - to be implemented"}
+    logger.info("Findings endpoint called (placeholder)")
+    return {
+        "message": "Findings endpoint - to be implemented in GITZ-42",
+        "status": "coming_soon",
+    }
 
 
-@app.get("/api/v1/repositories", tags=["Repositories"])
+@app.get(f"{settings.API_PREFIX}/repositories", tags=["Repositories"])
 async def get_repositories():
     """Placeholder for repositories list endpoint"""
-    return {"message": "Repositories endpoint - to be implemented"}
+    logger.info("Repositories endpoint called (placeholder)")
+    return {
+        "message": "Repositories endpoint - to be implemented",
+        "status": "coming_soon",
+    }
 
 
-# Startup Event
+# ============================================================================
+# Application Lifecycle Events
+# ============================================================================
+
 @app.on_event("startup")
 async def startup_event():
     """
     Application startup tasks.
+    
+    - Log startup information
+    - Initialize database connection pool
+    - Initialize Redis connection
+    - Run any necessary migrations
     """
-    print("🚀 Gitzen API starting up...")
-    print(f"📝 Environment: {os.getenv('APP_ENV', 'development')}")
-    print(f"🔧 Debug mode: {os.getenv('DEBUG', 'false')}")
-    print("✅ Ready to accept requests")
+    logger.info("🚀 Gitzen API starting up...")
+    logger.info(f"📝 Environment: {settings.APP_ENV}")
+    logger.info(f"🔧 Debug mode: {settings.DEBUG}")
+    logger.info(f"🌐 CORS origins: {settings.get_cors_origins}")
+    logger.info(f"🔗 API prefix: {settings.API_PREFIX}")
+    
+    # TODO: Initialize database connection pool (GITZ-40)
+    # TODO: Initialize Redis connection (GITZ-34)
+    # TODO: Run health checks on dependencies
+    
+    logger.info("✅ Ready to accept requests")
 
 
-# Shutdown Event
 @app.on_event("shutdown")
 async def shutdown_event():
     """
     Application shutdown tasks.
+    
+    - Close database connections
+    - Close Redis connections
+    - Clean up resources
     """
-    print("🛑 Gitzen API shutting down...")
-    print("✅ Cleanup complete")
+    logger.info("🛑 Gitzen API shutting down...")
+    
+    # TODO: Close database connection pool
+    # TODO: Close Redis connection
+    # TODO: Clean up any remaining resources
+    
+    logger.info("✅ Cleanup complete")
 
+
+# ============================================================================
+# Development Server
+# ============================================================================
 
 if __name__ == "__main__":
     import uvicorn
 
+    logger.info(f"Starting development server on {settings.API_HOST}:{settings.API_PORT}")
+    
     uvicorn.run(
         "app.main:app",
-        host=os.getenv("API_HOST", "0.0.0.0"),
-        port=int(os.getenv("API_PORT", 8000)),
-        reload=os.getenv("DEBUG", "false").lower() == "true",
+        host=settings.API_HOST,
+        port=settings.API_PORT,
+        reload=settings.DEBUG,
+        log_level=settings.LOG_LEVEL.lower(),
     )
