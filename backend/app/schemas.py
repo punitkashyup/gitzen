@@ -193,14 +193,9 @@ class FindingResponse(FindingBase, TimestampSchema):
     resolved_by_id: UUID | None = None
     resolved_at: datetime | None = None
     fixed_in_commit: str | None = None
-    fixed_at: datetime | None = None
     
     # False positive association
     false_positive_id: UUID | None = None
-    
-    # Timing
-    first_seen_at: datetime
-    last_seen_at: datetime
     
     model_config = ConfigDict(from_attributes=True)
 

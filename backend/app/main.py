@@ -124,9 +124,14 @@ async def root():
 # API Router Registration
 # ============================================================================
 
-# TODO: Register routers here as they are created
-# from app.routers import findings, repositories, scans, users
-# app.include_router(findings.router, prefix=settings.API_PREFIX, tags=["Findings"])
+from app.routers import findings, statistics
+
+# Register findings and statistics routers
+app.include_router(findings.router, prefix=settings.API_PREFIX)
+app.include_router(statistics.router, prefix=settings.API_PREFIX)
+
+# TODO: Register additional routers as they are created
+# from app.routers import repositories, scans, users
 # app.include_router(repositories.router, prefix=settings.API_PREFIX, tags=["Repositories"])
 # app.include_router(scans.router, prefix=settings.API_PREFIX, tags=["Scans"])
 # app.include_router(users.router, prefix=settings.API_PREFIX, tags=["Users"])
@@ -135,16 +140,6 @@ async def root():
 # ============================================================================
 # Placeholder Endpoints (to be replaced by routers)
 # ============================================================================
-
-@app.get(f"{settings.API_PREFIX}/findings", tags=["Findings"])
-async def get_findings():
-    """Placeholder for findings list endpoint"""
-    logger.info("Findings endpoint called (placeholder)")
-    return {
-        "message": "Findings endpoint - to be implemented in GITZ-42",
-        "status": "coming_soon",
-    }
-
 
 @app.get(f"{settings.API_PREFIX}/repositories", tags=["Repositories"])
 async def get_repositories():
