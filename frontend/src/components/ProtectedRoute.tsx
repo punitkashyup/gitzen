@@ -10,14 +10,18 @@ import { useAuthStore } from '../store/auth.store';
 export default function ProtectedRoute() {
   const { isAuthenticated, isLoading, checkAuth } = useAuthStore();
 
-  // Check authentication on mount
+  // Check authentication on mount only if we have a token
   useEffect(() => {
-    if (!isAuthenticated && !isLoading) {
+    const hasToken = localStorage.getItem('access_token');
+    
+    // Only check auth if we have a token or if the store says we're authenticated
+    // This prevents unnecessary API calls on initial load
+    if ((hasToken || isAuthenticated) && !isLoading) {
       checkAuth();
     }
   }, [isAuthenticated, isLoading, checkAuth]);
 
-  // Show loading spinner while checking auth
+  // Show loading spinner while checking auth (but only if we had a token)
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

@@ -92,6 +92,19 @@ export const useAuthStore = create<AuthState>()(
         // Don't check if already loading
         if (get().isLoading) return;
 
+        // Don't check if no token exists (prevents unnecessary API calls)
+        const hasToken = localStorage.getItem('access_token');
+        if (!hasToken && !get().isAuthenticated) {
+          // No token and not authenticated - set clean state without API call
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: null,
+          });
+          return;
+        }
+
         set({ isLoading: true, error: null });
         try {
           const user = await authService.getCurrentUser();
@@ -101,11 +114,13 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
           });
         } catch (error) {
+          // Clear auth state on error
+          localStorage.removeItem('access_token');
           set({
             user: null,
             isAuthenticated: false,
             isLoading: false,
-            error: error instanceof Error ? error.message : 'Authentication check failed',
+            error: null, // Don't show error for failed auth check
           });
         }
       },

@@ -38,6 +38,11 @@ apiClient.interceptors.request.use(
 );
 
 /**
+ * Track if we're currently refreshing to prevent multiple refresh attempts
+ */
+let isRefreshing = false;
+
+/**
  * Response interceptor - Handle errors globally
  */
 apiClient.interceptors.response.use(
@@ -46,18 +51,28 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
     // If 401 and not already retried, try to refresh token
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && !isRefreshing) {
+      // Check if we have a token to refresh - if not, just fail
+      const hasToken = localStorage.getItem('access_token') || document.cookie.includes('access_token');
+      
+      if (!hasToken) {
+        // No token to refresh, just reject
+        return Promise.reject(error);
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
 
       try {
         // Try to refresh token
         await apiClient.post('/auth/refresh');
+        isRefreshing = false;
         // Retry original request
         return apiClient(originalRequest);
       } catch (refreshError) {
-        // Refresh failed, redirect to login
+        // Refresh failed, clear state and reject
+        isRefreshing = false;
         localStorage.removeItem('access_token');
-        window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }
