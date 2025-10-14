@@ -11,6 +11,8 @@ export interface User {
   email: string | null;
   avatar_url: string | null;
   role: string;
+  auth_provider: string;
+  email_verified: boolean;
   created_at: string;
   last_login_at: string | null;
 }
