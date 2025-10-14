@@ -14,6 +14,11 @@ import time
 from app.config import settings
 from app.logging_config import get_logger
 from app.database import init_db, close_db, check_db_health
+from app.middleware import (
+    PrivacyMiddleware,
+    RequestLoggingMiddleware,
+    SecureErrorHandlerMiddleware,
+)
 from app.exceptions import (
     GitzenException,
     gitzen_exception_handler,
@@ -54,45 +59,14 @@ app.add_middleware(
 # 2. GZip Compression Middleware
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
-# 3. Request Logging Middleware
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    """Log all incoming requests with timing information"""
-    start_time = time.time()
-    
-    # Log request
-    logger.info(
-        f"Request started: {request.method} {request.url.path}",
-        extra={
-            "method": request.method,
-            "path": request.url.path,
-            "query_params": str(request.query_params),
-            "client_host": request.client.host if request.client else None,
-        }
-    )
-    
-    # Process request
-    response = await call_next(request)
-    
-    # Calculate duration
-    duration = time.time() - start_time
-    
-    # Log response
-    logger.info(
-        f"Request completed: {request.method} {request.url.path} - {response.status_code}",
-        extra={
-            "method": request.method,
-            "path": request.url.path,
-            "status_code": response.status_code,
-            "duration_ms": round(duration * 1000, 2),
-        }
-    )
-    
-    # Add custom headers
-    response.headers["X-Process-Time"] = str(round(duration * 1000, 2))
-    response.headers["X-API-Version"] = settings.APP_VERSION
-    
-    return response
+# 3. Privacy Middleware (CRITICAL: redacts secrets from all responses)
+app.add_middleware(PrivacyMiddleware, redact_responses=True, redact_errors=True)
+
+# 4. Secure Error Handler Middleware
+app.add_middleware(SecureErrorHandlerMiddleware)
+
+# 5. Request Logging Middleware (logs with automatic redaction)
+app.add_middleware(RequestLoggingMiddleware)
 
 
 # ============================================================================
