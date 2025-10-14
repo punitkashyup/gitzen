@@ -13,6 +13,7 @@ from fastapi.exceptions import RequestValidationError
 import time
 from app.config import settings
 from app.logging_config import get_logger
+from app.database import init_db, close_db, check_db_health
 from app.exceptions import (
     GitzenException,
     gitzen_exception_handler,
@@ -104,15 +105,24 @@ async def health_check():
     Health check endpoint for Docker health checks and monitoring.
     
     Returns service status, version, and environment information.
+    Includes database connectivity status.
     """
+    # Check database health
+    db_health = await check_db_health()
+    
+    # Determine overall status
+    overall_status = "healthy" if db_health.get("status") == "healthy" else "degraded"
+    status_code = 200 if overall_status == "healthy" else 503
+    
     return JSONResponse(
         content={
-            "status": "healthy",
+            "status": overall_status,
             "service": settings.APP_NAME,
             "version": settings.APP_VERSION,
             "environment": settings.APP_ENV,
+            "database": db_health,
         },
-        status_code=200,
+        status_code=status_code,
     )
 
 
@@ -192,7 +202,15 @@ async def startup_event():
     logger.info(f"🌐 CORS origins: {settings.get_cors_origins}")
     logger.info(f"🔗 API prefix: {settings.API_PREFIX}")
     
-    # TODO: Initialize database connection pool (GITZ-40)
+    # Initialize database connection pool
+    try:
+        await init_db()
+        logger.info("✅ Database connection initialized")
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize database: {e}")
+        # Don't fail startup - allow app to start in degraded mode
+        logger.warning("⚠️ Starting in degraded mode without database")
+    
     # TODO: Initialize Redis connection (GITZ-34)
     # TODO: Run health checks on dependencies
     
@@ -210,7 +228,13 @@ async def shutdown_event():
     """
     logger.info("🛑 Gitzen API shutting down...")
     
-    # TODO: Close database connection pool
+    # Close database connection pool
+    try:
+        await close_db()
+        logger.info("✅ Database connection closed")
+    except Exception as e:
+        logger.error(f"⚠️ Error closing database: {e}")
+    
     # TODO: Close Redis connection
     # TODO: Clean up any remaining resources
     
