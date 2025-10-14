@@ -76,9 +76,9 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
         comment="Bcrypt hash of password (only for email auth)"
     )
     auth_provider = Column(
-        Enum(AuthProvider),
+        Enum('email', 'github', 'google', name='authprovider'),
         nullable=False,
-        default=AuthProvider.EMAIL,
+        default='email',
         index=True,
         comment="Authentication provider (email, github, google)"
     )

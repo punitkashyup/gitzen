@@ -158,7 +158,7 @@ async def register(
         username=register_data.username,
         email=register_data.email.lower(),
         password_hash=password_hash,
-        auth_provider=AuthProvider.EMAIL,
+        auth_provider=AuthProvider.EMAIL.value,  # Use .value to get the string
         email_verified=False,  # TODO: Implement email verification
         role="user",
         is_active=True,
@@ -198,7 +198,7 @@ async def register(
             email=user.email,
             avatar_url=user.avatar_url,
             role=user.role,
-            auth_provider=user.auth_provider.value,
+            auth_provider=user.auth_provider,
             email_verified=user.email_verified,
             created_at=user.created_at,
             last_login_at=user.last_login_at
@@ -311,7 +311,7 @@ async def login(
             email=user.email,
             avatar_url=user.avatar_url,
             role=user.role,
-            auth_provider=user.auth_provider.value,
+            auth_provider=user.auth_provider,
             email_verified=user.email_verified,
             created_at=user.created_at,
             last_login_at=user.last_login_at
@@ -564,7 +564,7 @@ async def github_callback(
         email=user.email,
         avatar_url=user.avatar_url,
         role=user.role,
-        auth_provider=user.auth_provider.value,
+        auth_provider=user.auth_provider,
         email_verified=user.email_verified,
         created_at=user.created_at,
         last_login_at=user.last_login_at
@@ -606,7 +606,7 @@ async def get_current_user_profile(user: User = Depends(get_current_user)):
         email=user.email,
         avatar_url=user.avatar_url,
         role=user.role,
-        auth_provider=user.auth_provider.value,
+        auth_provider=user.auth_provider,
         email_verified=user.email_verified,
         created_at=user.created_at,
         last_login_at=user.last_login_at
