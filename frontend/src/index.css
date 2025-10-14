@@ -1,5 +1,5 @@
 /* Import Fonts First */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 /* Tailwind CSS Directives */
@@ -7,20 +7,20 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CSS Variables for Design System */
+/* CSS Variables for Design System - Updated to match template */
 @layer base {
   :root {
-    /* Primary Colors */
-    --color-primary-50: #f5f3ff;
-    --color-primary-100: #ede9fe;
-    --color-primary-200: #ddd6fe;
-    --color-primary-300: #c4b5fd;
-    --color-primary-400: #a78bfa;
-    --color-primary-500: #8b5cf6;
-    --color-primary-600: #7c3aed;
-    --color-primary-700: #6d28d9;
-    --color-primary-800: #5b21b6;
-    --color-primary-900: #4c1d95;
+    /* Primary Colors - Blue Theme (#3F3FF3) */
+    --color-primary-50: #ededfe;
+    --color-primary-100: #d4d4fd;
+    --color-primary-200: #afaffa;
+    --color-primary-300: #8989f7;
+    --color-primary-400: #6464f5;
+    --color-primary-500: #3F3FF3;
+    --color-primary-600: #3232c2;
+    --color-primary-700: #262692;
+    --color-primary-800: #191961;
+    --color-primary-900: #0d0d31;
     
     /* Semantic Colors */
     --color-success: #22c55e;
@@ -36,6 +36,28 @@
     --color-bg-secondary: #fafafa;
     --color-bg-tertiary: #f5f5f5;
     --color-border: #e5e5e5;
+    
+    /* shadcn/ui compatible color tokens */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+    --primary: 240 95% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 240 95% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 240 95% 60%;
+    --radius: 0.5rem;
     
     /* Spacing Scale */
     --spacing-xs: 0.25rem;
@@ -53,15 +75,15 @@
     --radius-xl: 1rem;
     --radius-full: 9999px;
     
-    /* Shadows */
+    /* Shadows - Minimal shadows as per template */
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.4);
+    --shadow-md: 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+    --shadow-xl: 0 8px 12px -2px rgba(0, 0, 0, 0.1);
+    --shadow-glow: 0 0 20px rgba(63, 63, 243, 0.3);
     
     /* Typography */
-    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     --font-mono: 'JetBrains Mono', 'Fira Code', 'Menlo', 'Monaco', monospace;
     
     /* Transitions */
@@ -74,6 +96,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    border-color: hsl(var(--border));
   }
   
   html {
@@ -85,9 +108,9 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     min-height: 100vh;
-    color: var(--color-text-primary);
   }
   
   code {
@@ -106,12 +129,12 @@
   }
   
   ::-webkit-scrollbar-thumb {
-    background: var(--color-primary-400);
+    background: hsl(var(--primary));
     border-radius: var(--radius-md);
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-primary-500);
+    background: hsl(var(--primary) / 0.8);
   }
 }
 

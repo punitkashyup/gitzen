@@ -82,3 +82,6 @@ temp/
 *.pem
 *.key
 secrets/
+
+#Temp Files
+/templates/

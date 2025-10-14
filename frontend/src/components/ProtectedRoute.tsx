@@ -19,7 +19,8 @@ export default function ProtectedRoute() {
     if ((hasToken || isAuthenticated) && !isLoading) {
       checkAuth();
     }
-  }, [isAuthenticated, isLoading, checkAuth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount
 
   // Show loading spinner while checking auth (but only if we had a token)
   if (isLoading) {

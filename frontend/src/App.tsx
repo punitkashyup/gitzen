@@ -4,20 +4,20 @@
  * Root component with routing and authentication setup.
  */
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
+import AuthPage from './pages/AuthPage';
 import CallbackPage from './pages/CallbackPage';
 import DashboardPage from './pages/DashboardPage';
 import ProtectedRoute from './components/ProtectedRoute';
-import './App.css'
+import './App.css';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        {/* Public Routes - Unified Auth Page */}
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/login" element={<Navigate to="/auth" replace />} />
+        <Route path="/register" element={<Navigate to="/auth" replace />} />
         <Route path="/callback" element={<CallbackPage />} />
 
         {/* Protected Routes */}
@@ -25,14 +25,14 @@ function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
         </Route>
 
-        {/* Redirect root to dashboard */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        {/* Redirect root to auth */}
+        <Route path="/" element={<Navigate to="/auth" replace />} />
 
-        {/* 404 - Redirect to dashboard */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        {/* 404 - Redirect to auth */}
+        <Route path="*" element={<Navigate to="/auth" replace />} />
       </Routes>
     </BrowserRouter>
   );
 }
 
-export default App
+export default App;

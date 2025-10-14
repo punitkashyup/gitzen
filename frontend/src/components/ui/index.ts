@@ -20,3 +20,10 @@ export {
   CardFooter,
 } from './Card';
 export type { CardProps } from './Card';
+
+export { default as Label } from './Label';
+export type { LabelProps } from './Label';
+
+export { default as Separator } from './Separator';
+export type { SeparatorProps } from './Separator';
+
