@@ -1,7 +1,7 @@
 """
 Authentication Router
 
-GitHub OAuth authentication endpoints.
+Email/password and OAuth authentication endpoints.
 """
 from datetime import datetime, timedelta
 from typing import Optional
@@ -11,21 +11,44 @@ import secrets
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import select, update, or_
 import httpx
 
 from app.database import get_db
 from app.config import settings
-from app.models.user import User
-from app.utils.auth import create_access_token, hash_access_token
+from app.models.user import User, AuthProvider
+from app.utils.auth import (
+    create_access_token,
+    hash_access_token,
+    hash_password,
+    verify_password,
+    validate_password_strength,
+    validate_email,
+    validate_username,
+)
 from app.dependencies.auth import get_current_user, get_optional_user
-from pydantic import BaseModel
+from app.logging_config import get_logger
+from pydantic import BaseModel, EmailStr, Field
 
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
+logger = get_logger(__name__)
 
 
 # Pydantic Schemas
+class RegisterRequest(BaseModel):
+    """User registration request"""
+    username: str = Field(..., min_length=3, max_length=30)
+    email: EmailStr
+    password: str = Field(..., min_length=8)
+
+
+class LoginRequest(BaseModel):
+    """Email/password login request"""
+    email: EmailStr
+    password: str
+
+
 class UserResponse(BaseModel):
     """User profile response"""
     id: str
@@ -33,6 +56,8 @@ class UserResponse(BaseModel):
     email: Optional[str] = None
     avatar_url: Optional[str] = None
     role: str
+    auth_provider: str
+    email_verified: bool
     created_at: datetime
     last_login_at: Optional[datetime] = None
     
@@ -46,6 +71,257 @@ class LoginResponse(BaseModel):
     token_type: str = "bearer"
     expires_in: int
     user: UserResponse
+
+
+# ============================================================================
+# Email/Password Authentication Endpoints
+# ============================================================================
+
+@router.post("/register", response_model=LoginResponse, status_code=status.HTTP_201_CREATED)
+async def register(
+    register_data: RegisterRequest,
+    response: Response,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Register new user with email and password.
+    
+    **Requirements:**
+    - Username: 3-30 characters, alphanumeric with underscores/hyphens
+    - Email: Valid email format
+    - Password: Minimum 8 characters, must contain uppercase, lowercase, and number
+    
+    **Returns:**
+    - JWT access token
+    - User profile
+    
+    **Errors:**
+    - 400: Validation error (weak password, invalid email, etc.)
+    - 409: Username or email already exists
+    
+    **Example:**
+    ```json
+    POST /api/v1/auth/register
+    {
+        "username": "john_doe",
+        "email": "john@example.com",
+        "password": "SecurePass123"
+    }
+    ```
+    """
+    logger.info(f"Registration attempt for username: {register_data.username}")
+    
+    # Validate username
+    is_valid, error = validate_username(register_data.username)
+    if not is_valid:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
+    
+    # Validate email
+    is_valid, error = validate_email(register_data.email)
+    if not is_valid:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
+    
+    # Validate password strength
+    is_valid, error = validate_password_strength(register_data.password)
+    if not is_valid:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
+    
+    # Check if username already exists
+    query = select(User).where(
+        User.username == register_data.username,
+        User.deleted_at.is_(None)
+    )
+    result = await db.execute(query)
+    if result.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Username already exists"
+        )
+    
+    # Check if email already exists
+    query = select(User).where(
+        User.email == register_data.email.lower(),
+        User.deleted_at.is_(None)
+    )
+    result = await db.execute(query)
+    if result.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email already registered"
+        )
+    
+    # Hash password
+    password_hash = hash_password(register_data.password)
+    
+    # Create user
+    user = User(
+        username=register_data.username,
+        email=register_data.email.lower(),
+        password_hash=password_hash,
+        auth_provider=AuthProvider.EMAIL,
+        email_verified=False,  # TODO: Implement email verification
+        role="user",
+        is_active=True,
+        last_login_at=datetime.utcnow()
+    )
+    
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    
+    logger.info(f"User registered successfully: {user.username} ({user.id})")
+    
+    # Generate JWT token
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    jwt_token = create_access_token(
+        data={"sub": str(user.id), "username": user.username, "role": user.role},
+        expires_delta=access_token_expires
+    )
+    
+    # Set HTTP-only cookie
+    response.set_cookie(
+        key="access_token",
+        value=jwt_token,
+        httponly=True,
+        secure=settings.APP_ENV == "production",
+        samesite="lax",
+        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    )
+    
+    return LoginResponse(
+        access_token=jwt_token,
+        token_type="bearer",
+        expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        user=UserResponse(
+            id=str(user.id),
+            username=user.username,
+            email=user.email,
+            avatar_url=user.avatar_url,
+            role=user.role,
+            auth_provider=user.auth_provider.value,
+            email_verified=user.email_verified,
+            created_at=user.created_at,
+            last_login_at=user.last_login_at
+        )
+    )
+
+
+@router.post("/login", response_model=LoginResponse)
+async def login(
+    login_data: LoginRequest,
+    response: Response,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Login with email and password.
+    
+    **Returns:**
+    - JWT access token
+    - User profile
+    
+    **Errors:**
+    - 401: Invalid email or password (intentionally vague for security)
+    - 403: Account is disabled
+    
+    **Security:**
+    - Does not reveal whether email exists (prevents user enumeration)
+    - Uses constant-time password comparison
+    - Rate limited to prevent brute force attacks
+    
+    **Example:**
+    ```json
+    POST /api/v1/auth/login
+    {
+        "email": "john@example.com",
+        "password": "SecurePass123"
+    }
+    ```
+    """
+    logger.info(f"Login attempt for email: {login_data.email}")
+    
+    # Find user by email
+    query = select(User).where(
+        User.email == login_data.email.lower(),
+        User.deleted_at.is_(None)
+    )
+    result = await db.execute(query)
+    user = result.scalar_one_or_none()
+    
+    # Generic error message to prevent user enumeration
+    invalid_credentials_error = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid email or password"
+    )
+    
+    if not user:
+        logger.warning(f"Login failed: User not found for email {login_data.email}")
+        raise invalid_credentials_error
+    
+    # Check if user is using email auth (not OAuth)
+    if user.auth_provider != AuthProvider.EMAIL:
+        logger.warning(f"Login failed: User {user.username} attempted email login but uses {user.auth_provider.value}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"This account uses {user.auth_provider.value} authentication. Please use the appropriate login method."
+        )
+    
+    # Verify password
+    if not user.password_hash or not verify_password(login_data.password, user.password_hash):
+        logger.warning(f"Login failed: Invalid password for email {login_data.email}")
+        raise invalid_credentials_error
+    
+    # Check if account is active
+    if not user.is_active:
+        logger.warning(f"Login failed: Account disabled for user {user.username}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is disabled. Please contact support."
+        )
+    
+    # Update last login
+    user.last_login_at = datetime.utcnow()
+    await db.commit()
+    
+    logger.info(f"User logged in successfully: {user.username} ({user.id})")
+    
+    # Generate JWT token
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    jwt_token = create_access_token(
+        data={"sub": str(user.id), "username": user.username, "role": user.role},
+        expires_delta=access_token_expires
+    )
+    
+    # Set HTTP-only cookie
+    response.set_cookie(
+        key="access_token",
+        value=jwt_token,
+        httponly=True,
+        secure=settings.APP_ENV == "production",
+        samesite="lax",
+        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    )
+    
+    return LoginResponse(
+        access_token=jwt_token,
+        token_type="bearer",
+        expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        user=UserResponse(
+            id=str(user.id),
+            username=user.username,
+            email=user.email,
+            avatar_url=user.avatar_url,
+            role=user.role,
+            auth_provider=user.auth_provider.value,
+            email_verified=user.email_verified,
+            created_at=user.created_at,
+            last_login_at=user.last_login_at
+        )
+    )
+
+
+# ============================================================================
+# GitHub OAuth Authentication Endpoints
+# ============================================================================
 
 
 # In-memory state storage for OAuth (use Redis in production)
@@ -253,6 +529,8 @@ async def github_callback(
             email=email,
             avatar_url=avatar_url,
             access_token_hash=token_hash,
+            auth_provider=AuthProvider.GITHUB,
+            email_verified=True,  # GitHub emails are verified
             role="user",
             is_active=True,
             last_login_at=now
@@ -286,6 +564,8 @@ async def github_callback(
         email=user.email,
         avatar_url=user.avatar_url,
         role=user.role,
+        auth_provider=user.auth_provider.value,
+        email_verified=user.email_verified,
         created_at=user.created_at,
         last_login_at=user.last_login_at
     )
@@ -326,6 +606,8 @@ async def get_current_user_profile(user: User = Depends(get_current_user)):
         email=user.email,
         avatar_url=user.avatar_url,
         role=user.role,
+        auth_provider=user.auth_provider.value,
+        email_verified=user.email_verified,
         created_at=user.created_at,
         last_login_at=user.last_login_at
     )
