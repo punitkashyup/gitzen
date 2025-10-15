@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import tokens from '../design/tokens';
 import Modal from '../components/Modal';
 import FindingDetailPage from './FindingDetailPage';
+import { CustomSelect } from '../components/CustomSelect';
 
 // Types for our findings data
 export interface Finding {
@@ -339,6 +340,11 @@ export const FindingsListPage: React.FC = () => {
     flex: '0 1 180px',
     minWidth: '150px',
     cursor: 'pointer',
+    paddingRight: '2.5rem', // Make room for custom arrow
+    // These will be overridden by CSS class but helps with specificity
+    appearance: 'none',
+    WebkitAppearance: 'none',
+    MozAppearance: 'none',
   };
 
   const buttonStyle: React.CSSProperties = {
@@ -490,68 +496,67 @@ export const FindingsListPage: React.FC = () => {
             style={inputStyle}
           />
           
-          <select
+          <CustomSelect
             value={filters.repository}
-            onChange={(e) => handleFilterChange('repository', e.target.value)}
+            onChange={(value) => handleFilterChange('repository', value)}
+            options={[
+              { value: '', label: 'All Repositories' },
+              ...uniqueRepositories.map(repo => ({ value: repo, label: repo }))
+            ]}
+            placeholder="All Repositories"
             style={selectStyle}
-            className="custom-select"
-          >
-            <option value="">All Repositories</option>
-            {uniqueRepositories.map(repo => (
-              <option key={repo} value={repo}>{repo}</option>
-            ))}
-          </select>
+          />
 
-          <select
+          <CustomSelect
             value={filters.secretType}
-            onChange={(e) => handleFilterChange('secretType', e.target.value)}
+            onChange={(value) => handleFilterChange('secretType', value)}
+            options={[
+              { value: '', label: 'All Secret Types' },
+              ...uniqueSecretTypes.map(type => ({ value: type, label: type }))
+            ]}
+            placeholder="All Secret Types"
             style={selectStyle}
-            className="custom-select"
-          >
-            <option value="">All Secret Types</option>
-            {uniqueSecretTypes.map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
+          />
 
-          <select
+          <CustomSelect
             value={filters.severity}
-            onChange={(e) => handleFilterChange('severity', e.target.value)}
+            onChange={(value) => handleFilterChange('severity', value)}
+            options={[
+              { value: '', label: 'All Severities' },
+              { value: 'critical', label: 'Critical' },
+              { value: 'high', label: 'High' },
+              { value: 'medium', label: 'Medium' },
+              { value: 'low', label: 'Low' },
+              { value: 'info', label: 'Info' }
+            ]}
+            placeholder="All Severities"
             style={selectStyle}
-            className="custom-select"
-          >
-            <option value="">All Severities</option>
-            <option value="critical">Critical</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-            <option value="info">Info</option>
-          </select>
+          />
 
-          <select
+          <CustomSelect
             value={filters.status}
-            onChange={(e) => handleFilterChange('status', e.target.value)}
+            onChange={(value) => handleFilterChange('status', value)}
+            options={[
+              { value: '', label: 'All Statuses' },
+              { value: 'open', label: 'Open' },
+              { value: 'in-progress', label: 'In Progress' },
+              { value: 'resolved', label: 'Resolved' },
+              { value: 'false-positive', label: 'False Positive' }
+            ]}
+            placeholder="All Statuses"
             style={selectStyle}
-            className="custom-select"
-          >
-            <option value="">All Statuses</option>
-            <option value="open">Open</option>
-            <option value="in-progress">In Progress</option>
-            <option value="resolved">Resolved</option>
-            <option value="false-positive">False Positive</option>
-          </select>
+          />
 
-          <select
+          <CustomSelect
             value={filters.assignee}
-            onChange={(e) => handleFilterChange('assignee', e.target.value)}
+            onChange={(value) => handleFilterChange('assignee', value)}
+            options={[
+              { value: '', label: 'All Assignees' },
+              ...uniqueAssignees.map(assignee => ({ value: assignee as string, label: assignee as string }))
+            ]}
+            placeholder="All Assignees"
             style={selectStyle}
-            className="custom-select"
-          >
-            <option value="">All Assignees</option>
-            {uniqueAssignees.map(assignee => (
-              <option key={assignee} value={assignee}>{assignee}</option>
-            ))}
-          </select>
+          />
 
           {/* Action Buttons */}
           {hasActiveFilters() && (
@@ -692,24 +697,24 @@ export const FindingsListPage: React.FC = () => {
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: tokens.spacing[2] }}>
-          <select
-            value={itemsPerPage}
-            onChange={(e) => {
-              setItemsPerPage(Number(e.target.value));
+          <CustomSelect
+            value={String(itemsPerPage)}
+            onChange={(value) => {
+              setItemsPerPage(Number(value));
               setCurrentPage(1);
             }}
+            options={[
+              { value: '10', label: '10 per page' },
+              { value: '25', label: '25 per page' },
+              { value: '50', label: '50 per page' },
+              { value: '100', label: '100 per page' }
+            ]}
             style={{
               ...selectStyle,
               width: 'auto',
-              padding: `${tokens.spacing[1]} ${tokens.spacing[2]}`
+              minWidth: '120px'
             }}
-            className="custom-select"
-          >
-            <option value={10}>10 per page</option>
-            <option value={25}>25 per page</option>
-            <option value={50}>50 per page</option>
-            <option value={100}>100 per page</option>
-          </select>
+          />
           
           <button
             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}

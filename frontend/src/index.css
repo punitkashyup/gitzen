@@ -198,19 +198,29 @@
 }
 
 /* Custom Select Styling - Remove native appearance */
-select.custom-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 12px;
-  padding-right: 2rem;
+/* Use high specificity to override inline styles */
+select.custom-select,
+select.custom-select:focus,
+select.custom-select:active {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 12px !important;
+  background-color: white !important;
+  padding-right: 2.5rem !important;
 }
 
-/* Remove default arrow in IE */
+/* Remove default arrow in IE and Safari */
 select.custom-select::-ms-expand {
   display: none;
 }
 
+/* Ensure option elements also don't use native styling */
+select.custom-select option {
+  background-color: white;
+  color: #171717;
+  padding: 8px;
+}
