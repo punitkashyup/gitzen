@@ -584,7 +584,7 @@ const FindingDetailPage: React.FC<FindingDetailPageProps> = ({ findingId: propFi
 
           {/* Action Buttons */}
           {finding.status === 'open' && (
-            <div style={{ display: 'flex', gap: tokens.spacing[12], flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: tokens.spacing[12], flexShrink: 0, flexWrap: 'wrap' }}>
               <button
                 onClick={() => setShowConfirmation('false-positive')}
                 style={{
@@ -609,6 +609,137 @@ const FindingDetailPage: React.FC<FindingDetailPageProps> = ({ findingId: propFi
                 }}
               >
                 Mark as False Positive
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm('Mark this finding as In Progress?')) {
+                    setFinding({ ...finding, status: 'in-progress', lastUpdated: new Date().toISOString() });
+                    const newComment: Comment = {
+                      id: String(comments.length + 1),
+                      author: 'Current User',
+                      content: 'Started working on this finding',
+                      createdAt: new Date().toISOString(),
+                      avatar: 'CU',
+                      reactions: { thumbsUp: 0, checkmark: 0, cross: 0, question: 0 },
+                    };
+                    setComments([...comments, newComment]);
+                    const newActivity: ActivityLog = {
+                      id: String(activityLog.length + 1),
+                      type: 'status_changed',
+                      description: 'Finding marked as in progress',
+                      author: 'Current User',
+                      timestamp: new Date().toISOString(),
+                      icon: '🔧',
+                    };
+                    setActivityLog([...activityLog, newActivity]);
+                  }
+                }}
+                style={{
+                  padding: `${tokens.spacing[10]} ${tokens.spacing[20]}`,
+                  backgroundColor: tokens.colors.primary[600],
+                  color: tokens.colors.neutral[50],
+                  border: 'none',
+                  borderRadius: tokens.borderRadius.lg,
+                  cursor: 'pointer',
+                  fontWeight: tokens.typography.fontWeight.semibold,
+                  fontSize: tokens.typography.fontSize.sm.size,
+                  whiteSpace: 'nowrap',
+                  boxShadow: tokens.shadows.md,
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = tokens.colors.primary[700];
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = tokens.shadows.lg;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = tokens.colors.primary[600];
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = tokens.shadows.md;
+                }}
+              >
+                🔧 Mark as In Progress
+              </button>
+              <button
+                onClick={() => setShowConfirmation('resolved')}
+                style={{
+                  padding: `${tokens.spacing[10]} ${tokens.spacing[20]}`,
+                  backgroundColor: tokens.colors.success[600],
+                  color: tokens.colors.neutral[50],
+                  border: 'none',
+                  borderRadius: tokens.borderRadius.lg,
+                  cursor: 'pointer',
+                  fontWeight: tokens.typography.fontWeight.semibold,
+                  fontSize: tokens.typography.fontSize.sm.size,
+                  whiteSpace: 'nowrap',
+                  boxShadow: tokens.shadows.md,
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = tokens.colors.success[700];
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = tokens.shadows.lg;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = tokens.colors.success[600];
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = tokens.shadows.md;
+                }}
+              >
+                ✓ Mark as Resolved
+              </button>
+            </div>
+          )}
+
+          {/* Actions for In Progress findings */}
+          {finding.status === 'in-progress' && (
+            <div style={{ display: 'flex', gap: tokens.spacing[12], flexShrink: 0, flexWrap: 'wrap' }}>
+              <button
+                onClick={() => {
+                  if (confirm('Revert this finding back to Open status?')) {
+                    setFinding({ ...finding, status: 'open', lastUpdated: new Date().toISOString() });
+                    const newComment: Comment = {
+                      id: String(comments.length + 1),
+                      author: 'Current User',
+                      content: 'Reverted finding back to Open status',
+                      createdAt: new Date().toISOString(),
+                      avatar: 'CU',
+                      reactions: { thumbsUp: 0, checkmark: 0, cross: 0, question: 0 },
+                    };
+                    setComments([...comments, newComment]);
+                    const newActivity: ActivityLog = {
+                      id: String(activityLog.length + 1),
+                      type: 'status_changed',
+                      description: 'Finding reverted from in progress to open',
+                      author: 'Current User',
+                      timestamp: new Date().toISOString(),
+                      icon: '↩️',
+                    };
+                    setActivityLog([...activityLog, newActivity]);
+                  }
+                }}
+                style={{
+                  padding: `${tokens.spacing[10]} ${tokens.spacing[20]}`,
+                  backgroundColor: tokens.colors.neutral[100],
+                  color: tokens.colors.neutral[700],
+                  border: `2px solid ${tokens.colors.neutral[300]}`,
+                  borderRadius: tokens.borderRadius.lg,
+                  cursor: 'pointer',
+                  fontWeight: tokens.typography.fontWeight.semibold,
+                  fontSize: tokens.typography.fontSize.sm.size,
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = tokens.colors.neutral[200];
+                  e.currentTarget.style.borderColor = tokens.colors.neutral[400];
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = tokens.colors.neutral[100];
+                  e.currentTarget.style.borderColor = tokens.colors.neutral[300];
+                }}
+              >
+                ↩️ Revert to Open
               </button>
               <button
                 onClick={() => setShowConfirmation('resolved')}
