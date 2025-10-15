@@ -640,62 +640,6 @@ const FindingDetailPage: React.FC<FindingDetailPageProps> = ({ findingId: propFi
               </button>
             </div>
           )}
-
-          {/* Revert to Open button for false positives */}
-          {finding.status === 'false-positive' && (
-            <div style={{ display: 'flex', gap: tokens.spacing[12], flexShrink: 0 }}>
-              <button
-                onClick={() => {
-                  if (confirm('Are you sure you want to revert this false positive back to Open status?')) {
-                    setFinding({ ...finding, status: 'open', lastUpdated: new Date().toISOString() });
-                    const newComment: Comment = {
-                      id: String(comments.length + 1),
-                      author: 'Current User',
-                      content: 'Reverted false positive back to Open status',
-                      createdAt: new Date().toISOString(),
-                      avatar: 'CU',
-                      reactions: { thumbsUp: 0, checkmark: 0, cross: 0, question: 0 },
-                    };
-                    setComments([...comments, newComment]);
-                    const newActivity: ActivityLog = {
-                      id: String(activityLog.length + 1),
-                      type: 'status_changed',
-                      description: 'Finding reverted from false positive to open',
-                      author: 'Current User',
-                      timestamp: new Date().toISOString(),
-                      icon: '↩️',
-                    };
-                    setActivityLog([...activityLog, newActivity]);
-                  }
-                }}
-                style={{
-                  padding: `${tokens.spacing[10]} ${tokens.spacing[20]}`,
-                  backgroundColor: tokens.colors.warning[600],
-                  color: tokens.colors.neutral[50],
-                  border: 'none',
-                  borderRadius: tokens.borderRadius.lg,
-                  cursor: 'pointer',
-                  fontWeight: tokens.typography.fontWeight.semibold,
-                  fontSize: tokens.typography.fontSize.sm.size,
-                  whiteSpace: 'nowrap',
-                  boxShadow: tokens.shadows.md,
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = tokens.colors.warning[700];
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = tokens.shadows.lg;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = tokens.colors.warning[600];
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = tokens.shadows.md;
-                }}
-              >
-                ↩️ Revert to Open
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Metadata Row - Inline */}
@@ -1432,7 +1376,7 @@ const FindingDetailPage: React.FC<FindingDetailPageProps> = ({ findingId: propFi
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

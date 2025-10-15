@@ -124,6 +124,7 @@ export const FindingsListPage: React.FC = () => {
     status: '',
     assignee: ''
   });
+  const [showFalsePositives, setShowFalsePositives] = useState(false);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -152,6 +153,11 @@ export const FindingsListPage: React.FC = () => {
   // Filter and sort findings
   const filteredFindings = useMemo(() => {
     let filtered = findings.filter(finding => {
+      // Hide false positives by default unless toggled
+      if (!showFalsePositives && finding.status === 'false-positive') {
+        return false;
+      }
+
       const matchesSearch = filters.search === '' || 
         Object.values(finding).some(value => 
           String(value).toLowerCase().includes(filters.search.toLowerCase())
@@ -181,7 +187,7 @@ export const FindingsListPage: React.FC = () => {
     });
 
     return filtered;
-  }, [findings, filters, sortField, sortDirection]);
+  }, [findings, filters, sortField, sortDirection, showFalsePositives]);
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredFindings.length / itemsPerPage);
@@ -549,6 +555,21 @@ export const FindingsListPage: React.FC = () => {
           </select>
 
           {/* Action Buttons */}
+          <button 
+            onClick={() => setShowFalsePositives(!showFalsePositives)}
+            style={{
+              ...buttonStyle, 
+              flex: '0 0 auto',
+              backgroundColor: showFalsePositives ? tokens.colors.status.falsePositive : tokens.colors.neutral[100],
+              color: showFalsePositives ? tokens.colors.neutral[0] : tokens.colors.neutral[700],
+              borderColor: showFalsePositives ? tokens.colors.status.falsePositive : tokens.colors.neutral[300],
+              display: 'flex',
+              alignItems: 'center',
+              gap: tokens.spacing[2],
+            }}
+          >
+            {showFalsePositives ? '✓' : '○'} Show False Positives
+          </button>
           {hasActiveFilters() && (
             <button onClick={clearFilters} style={{...buttonStyle, flex: '0 0 auto'}}>
               Clear Filters
