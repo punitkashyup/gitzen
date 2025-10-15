@@ -335,18 +335,6 @@ export const FindingsListPage: React.FC = () => {
     transition: tokens.transitions.colors
   };
 
-  const selectStyle: React.CSSProperties = {
-    ...inputStyle,
-    flex: '0 1 180px',
-    minWidth: '150px',
-    cursor: 'pointer',
-    paddingRight: '2.5rem', // Make room for custom arrow
-    // These will be overridden by CSS class but helps with specificity
-    appearance: 'none',
-    WebkitAppearance: 'none',
-    MozAppearance: 'none',
-  };
-
   const buttonStyle: React.CSSProperties = {
     padding: `${tokens.spacing[2]} ${tokens.spacing[4]}`,
     backgroundColor: tokens.colors.neutral[100],
@@ -504,7 +492,6 @@ export const FindingsListPage: React.FC = () => {
               ...uniqueRepositories.map(repo => ({ value: repo, label: repo }))
             ]}
             placeholder="All Repositories"
-            style={selectStyle}
           />
 
           <CustomSelect
@@ -515,7 +502,6 @@ export const FindingsListPage: React.FC = () => {
               ...uniqueSecretTypes.map(type => ({ value: type, label: type }))
             ]}
             placeholder="All Secret Types"
-            style={selectStyle}
           />
 
           <CustomSelect
@@ -530,7 +516,6 @@ export const FindingsListPage: React.FC = () => {
               { value: 'info', label: 'Info' }
             ]}
             placeholder="All Severities"
-            style={selectStyle}
           />
 
           <CustomSelect
@@ -544,7 +529,6 @@ export const FindingsListPage: React.FC = () => {
               { value: 'false-positive', label: 'False Positive' }
             ]}
             placeholder="All Statuses"
-            style={selectStyle}
           />
 
           <CustomSelect
@@ -555,7 +539,6 @@ export const FindingsListPage: React.FC = () => {
               ...uniqueAssignees.map(assignee => ({ value: assignee as string, label: assignee as string }))
             ]}
             placeholder="All Assignees"
-            style={selectStyle}
           />
 
           {/* Action Buttons */}
@@ -709,11 +692,8 @@ export const FindingsListPage: React.FC = () => {
               { value: '50', label: '50 per page' },
               { value: '100', label: '100 per page' }
             ]}
-            style={{
-              ...selectStyle,
-              width: 'auto',
-              minWidth: '120px'
-            }}
+            width="auto"
+            minWidth="120px"
           />
           
           <button

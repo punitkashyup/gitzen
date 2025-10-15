@@ -12,6 +12,8 @@ interface CustomSelectProps {
   options: Option[];
   placeholder?: string;
   style?: React.CSSProperties;
+  width?: string;
+  minWidth?: string;
 }
 
 export const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -19,7 +21,9 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   onChange,
   options,
   placeholder = 'Select...',
-  style = {}
+  style = {},
+  width,
+  minWidth
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
@@ -43,6 +47,11 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
     setIsOpen(false);
   };
 
+  // Extract only sizing props from style, ignore border/padding/background
+  const containerWidth = width || (style as any).width || 'auto';
+  const containerMinWidth = minWidth || (style as any).minWidth || (style as any).flex?.includes('180px') ? '150px' : '200px';
+  const containerFlex = (style as any).flex || '0 1 180px';
+
   const selectBoxStyle: React.CSSProperties = {
     position: 'relative',
     display: 'flex',
@@ -56,7 +65,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
     cursor: 'pointer',
     transition: tokens.transitions.colors,
     userSelect: 'none',
-    ...style
+    width: '100%',
   };
 
   const dropdownStyle: React.CSSProperties = {
@@ -91,7 +100,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   };
 
   return (
-    <div ref={selectRef} style={{ position: 'relative', ...style }}>
+    <div ref={selectRef} style={{ position: 'relative', flex: containerFlex, minWidth: containerMinWidth, width: containerWidth }}>
       <div
         onClick={() => setIsOpen(!isOpen)}
         style={selectBoxStyle}
