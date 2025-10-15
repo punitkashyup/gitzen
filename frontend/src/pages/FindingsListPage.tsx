@@ -241,13 +241,6 @@ export const FindingsListPage: React.FC = () => {
     window.history.pushState({}, '', '/findings');
   };
 
-  // Handle resolve action
-  const handleResolve = (findingId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    // For now, just open the modal - in real implementation would update status
-    handleViewFinding(findingId);
-  };
-
   // Handle export
   const handleExport = () => {
     // Placeholder for export functionality
@@ -323,14 +316,15 @@ export const FindingsListPage: React.FC = () => {
   };
 
   const filtersGridStyle: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: tokens.spacing[4],
-    marginBottom: tokens.spacing[4]
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: tokens.spacing[3],
+    alignItems: 'center'
   };
 
   const inputStyle: React.CSSProperties = {
-    width: '100%',
+    flex: '1 1 250px',
+    minWidth: '200px',
     padding: `${tokens.spacing[2]} ${tokens.spacing[3]}`,
     border: `1px solid ${tokens.colors.neutral[300]}`,
     borderRadius: tokens.borderRadius.lg,
@@ -342,6 +336,8 @@ export const FindingsListPage: React.FC = () => {
 
   const selectStyle: React.CSSProperties = {
     ...inputStyle,
+    flex: '0 1 180px',
+    minWidth: '150px',
     cursor: 'pointer'
   };
 
@@ -551,16 +547,15 @@ export const FindingsListPage: React.FC = () => {
               <option key={assignee} value={assignee}>{assignee}</option>
             ))}
           </select>
-        </div>
-        
-        <div style={{ display: 'flex', gap: tokens.spacing[3], justifyContent: 'flex-end', marginTop: tokens.spacing[4] }}>
+
+          {/* Action Buttons */}
           {hasActiveFilters() && (
-            <button onClick={clearFilters} style={buttonStyle}>
-              🗑️ Clear Filters
+            <button onClick={clearFilters} style={{...buttonStyle, flex: '0 0 auto'}}>
+              Clear Filters
             </button>
           )}
-          <button onClick={handleExport} style={primaryButtonStyle}>
-            📥 Export Results
+          <button onClick={handleExport} style={{...primaryButtonStyle, flex: '0 0 auto'}}>
+            Export Results
           </button>
         </div>
       </div>
@@ -674,23 +669,8 @@ export const FindingsListPage: React.FC = () => {
                           color: tokens.colors.primary[700]
                         }}
                       >
-                        👁️ View
+                        View
                       </button>
-                      {finding.status === 'open' && (
-                        <button 
-                          onClick={(e) => handleResolve(finding.id, e)}
-                          style={{
-                            ...buttonStyle,
-                            padding: `${tokens.spacing[1.5]} ${tokens.spacing[3]}`,
-                            fontSize: tokens.typography.fontSize.xs.size,
-                            backgroundColor: tokens.colors.success[50],
-                            borderColor: tokens.colors.success[600],
-                            color: tokens.colors.success[700]
-                          }}
-                        >
-                          ✓ Resolve
-                        </button>
-                      )}
                     </div>
                   </td>
                 </tr>
