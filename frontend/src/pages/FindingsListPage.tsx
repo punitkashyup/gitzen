@@ -339,16 +339,6 @@ export const FindingsListPage: React.FC = () => {
     flex: '0 1 180px',
     minWidth: '150px',
     cursor: 'pointer',
-    // Remove native appearance
-    appearance: 'none',
-    WebkitAppearance: 'none',
-    MozAppearance: 'none',
-    // Add custom dropdown arrow
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'right 12px center',
-    backgroundSize: '12px',
-    paddingRight: tokens.spacing[8], // Make room for custom arrow
   };
 
   const buttonStyle: React.CSSProperties = {
@@ -504,6 +494,7 @@ export const FindingsListPage: React.FC = () => {
             value={filters.repository}
             onChange={(e) => handleFilterChange('repository', e.target.value)}
             style={selectStyle}
+            className="custom-select"
           >
             <option value="">All Repositories</option>
             {uniqueRepositories.map(repo => (
@@ -515,6 +506,7 @@ export const FindingsListPage: React.FC = () => {
             value={filters.secretType}
             onChange={(e) => handleFilterChange('secretType', e.target.value)}
             style={selectStyle}
+            className="custom-select"
           >
             <option value="">All Secret Types</option>
             {uniqueSecretTypes.map(type => (
@@ -526,6 +518,7 @@ export const FindingsListPage: React.FC = () => {
             value={filters.severity}
             onChange={(e) => handleFilterChange('severity', e.target.value)}
             style={selectStyle}
+            className="custom-select"
           >
             <option value="">All Severities</option>
             <option value="critical">Critical</option>
@@ -539,6 +532,7 @@ export const FindingsListPage: React.FC = () => {
             value={filters.status}
             onChange={(e) => handleFilterChange('status', e.target.value)}
             style={selectStyle}
+            className="custom-select"
           >
             <option value="">All Statuses</option>
             <option value="open">Open</option>
@@ -551,6 +545,7 @@ export const FindingsListPage: React.FC = () => {
             value={filters.assignee}
             onChange={(e) => handleFilterChange('assignee', e.target.value)}
             style={selectStyle}
+            className="custom-select"
           >
             <option value="">All Assignees</option>
             {uniqueAssignees.map(assignee => (
@@ -708,6 +703,7 @@ export const FindingsListPage: React.FC = () => {
               width: 'auto',
               padding: `${tokens.spacing[1]} ${tokens.spacing[2]}`
             }}
+            className="custom-select"
           >
             <option value={10}>10 per page</option>
             <option value={25}>25 per page</option>
