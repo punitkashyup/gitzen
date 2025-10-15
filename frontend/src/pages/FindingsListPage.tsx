@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import tokens from '../design/tokens';
+import Modal from '../components/Modal';
+import FindingDetailPage from './FindingDetailPage';
 
 // Types for our findings data
 export interface Finding {
@@ -108,9 +110,12 @@ const mockFindings: Finding[] = [
 ];
 
 export const FindingsListPage: React.FC = () => {
-  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [findings] = useState<Finding[]>(mockFindings);
   const [isLoading] = useState(false);
+  const [selectedFindingId, setSelectedFindingId] = useState<string | null>(
+    searchParams.get('id')
+  );
   const [filters, setFilters] = useState<FindingsFilters>({
     search: '',
     repository: '',
@@ -210,6 +215,43 @@ export const FindingsListPage: React.FC = () => {
       assignee: ''
     });
     setCurrentPage(1);
+  };
+
+  // Check if any filters are active
+  const hasActiveFilters = () => {
+    return filters.search !== '' || 
+           filters.repository !== '' || 
+           filters.secretType !== '' || 
+           filters.severity !== '' || 
+           filters.status !== '' || 
+           filters.assignee !== '';
+  };
+
+  // Handle opening finding in modal
+  const handleViewFinding = (findingId: string) => {
+    setSelectedFindingId(findingId);
+    // Update URL without navigation
+    window.history.pushState({}, '', `/findings?id=${findingId}`);
+  };
+
+  // Handle closing modal
+  const handleCloseModal = () => {
+    setSelectedFindingId(null);
+    // Remove id from URL
+    window.history.pushState({}, '', '/findings');
+  };
+
+  // Handle resolve action
+  const handleResolve = (findingId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // For now, just open the modal - in real implementation would update status
+    handleViewFinding(findingId);
+  };
+
+  // Handle export
+  const handleExport = () => {
+    // Placeholder for export functionality
+    alert('Export functionality will be implemented');
   };
 
   // Get severity color
@@ -511,12 +553,14 @@ export const FindingsListPage: React.FC = () => {
           </select>
         </div>
         
-        <div style={{ display: 'flex', gap: tokens.spacing[2] }}>
-          <button onClick={clearFilters} style={buttonStyle}>
-            Clear Filters
-          </button>
-          <button style={primaryButtonStyle}>
-            Export Results
+        <div style={{ display: 'flex', gap: tokens.spacing[3], justifyContent: 'flex-end', marginTop: tokens.spacing[4] }}>
+          {hasActiveFilters() && (
+            <button onClick={clearFilters} style={buttonStyle}>
+              🗑️ Clear Filters
+            </button>
+          )}
+          <button onClick={handleExport} style={primaryButtonStyle}>
+            📥 Export Results
           </button>
         </div>
       </div>
@@ -567,7 +611,7 @@ export const FindingsListPage: React.FC = () => {
               {paginatedFindings.map(finding => (
                 <tr 
                   key={finding.id}
-                  onClick={() => navigate(`/findings/${finding.id}`)}
+                  onClick={() => handleViewFinding(finding.id)}
                   style={{ 
                     cursor: 'pointer',
                     transition: `background-color ${tokens.transitions.duration[200]}`,
@@ -619,32 +663,34 @@ export const FindingsListPage: React.FC = () => {
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/findings/${finding.id}`);
+                          handleViewFinding(finding.id);
                         }}
                         style={{
                           ...buttonStyle,
-                          padding: `${tokens.spacing[1]} ${tokens.spacing[2]}`,
-                          fontSize: tokens.typography.fontSize.xs.size
-                        }}
-                      >
-                        View
-                      </button>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Handle edit action
-                        }}
-                        style={{
-                          ...buttonStyle,
-                          padding: `${tokens.spacing[1]} ${tokens.spacing[2]}`,
+                          padding: `${tokens.spacing[1.5]} ${tokens.spacing[3]}`,
                           fontSize: tokens.typography.fontSize.xs.size,
                           backgroundColor: tokens.colors.primary[50],
                           borderColor: tokens.colors.primary[200],
                           color: tokens.colors.primary[700]
                         }}
                       >
-                        Edit
+                        👁️ View
                       </button>
+                      {finding.status === 'open' && (
+                        <button 
+                          onClick={(e) => handleResolve(finding.id, e)}
+                          style={{
+                            ...buttonStyle,
+                            padding: `${tokens.spacing[1.5]} ${tokens.spacing[3]}`,
+                            fontSize: tokens.typography.fontSize.xs.size,
+                            backgroundColor: tokens.colors.success[50],
+                            borderColor: tokens.colors.success[600],
+                            color: tokens.colors.success[700]
+                          }}
+                        >
+                          ✓ Resolve
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -712,6 +758,19 @@ export const FindingsListPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Modal for Finding Detail */}
+      <Modal 
+        isOpen={selectedFindingId !== null} 
+        onClose={handleCloseModal}
+        maxWidth="1400px"
+      >
+        {selectedFindingId && (
+          <div style={{ padding: tokens.spacing[24] }}>
+            <FindingDetailPage findingId={selectedFindingId} inModal={true} />
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

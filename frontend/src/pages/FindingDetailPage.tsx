@@ -153,9 +153,15 @@ const remediationGuides: Record<string, RemediationGuide> = {
   },
 };
 
-const FindingDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+interface FindingDetailPageProps {
+  findingId?: string;
+  inModal?: boolean;
+}
+
+const FindingDetailPage: React.FC<FindingDetailPageProps> = ({ findingId: propFindingId, inModal = false }) => {
+  const { id: paramId } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const id = propFindingId || paramId;
   const [finding, setFinding] = useState<Finding | null>(null);
   const [comments, setComments] = useState<Comment[]>(mockComments);
   const [newComment, setNewComment] = useState('');
@@ -285,24 +291,26 @@ const FindingDetailPage: React.FC = () => {
     <div style={{ padding: tokens.spacing[24], maxWidth: '1400px', margin: '0 auto' }}>
       {/* Header */}
       <div style={{ marginBottom: tokens.spacing[24] }}>
-        <button
-          onClick={() => navigate('/findings')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: tokens.spacing[8],
-            padding: `${tokens.spacing[8]} ${tokens.spacing[12]}`,
-            backgroundColor: 'transparent',
-            border: 'none',
-            color: tokens.colors.primary[600],
-            cursor: 'pointer',
-            fontSize: tokens.typography.fontSize.sm.size,
-            fontWeight: tokens.typography.fontWeight.medium,
-            marginBottom: tokens.spacing[16],
-          }}
-        >
-          ← Back to Findings
-        </button>
+        {!inModal && (
+          <button
+            onClick={() => navigate('/findings')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: tokens.spacing[8],
+              padding: `${tokens.spacing[8]} ${tokens.spacing[12]}`,
+              backgroundColor: 'transparent',
+              border: 'none',
+              color: tokens.colors.primary[600],
+              cursor: 'pointer',
+              fontSize: tokens.typography.fontSize.sm.size,
+              fontWeight: tokens.typography.fontWeight.medium,
+              marginBottom: tokens.spacing[16],
+            }}
+          >
+            ← Back to Findings
+          </button>
+        )}
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: tokens.spacing[16] }}>
           <div>
