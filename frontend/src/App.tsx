@@ -9,6 +9,7 @@ import CallbackPage from './pages/CallbackPage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import FindingsListPage from './pages/FindingsListPage';
+import FindingDetailPage from './pages/FindingDetailPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -26,6 +27,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/findings" element={<FindingsListPage />} />
+          <Route path="/findings/:id" element={<FindingDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>
 
