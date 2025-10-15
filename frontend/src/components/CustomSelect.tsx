@@ -58,6 +58,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: `${tokens.spacing[2]} ${tokens.spacing[3]}`,
+    paddingRight: tokens.spacing[2], // Less padding on right since arrow provides visual space
     border: `1px solid ${tokens.colors.neutral[300]}`,
     borderRadius: tokens.borderRadius.lg,
     fontSize: tokens.typography.fontSize.sm.size,
@@ -66,6 +67,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
     transition: tokens.transitions.colors,
     userSelect: 'none',
     width: '100%',
+    gap: tokens.spacing[3], // Add gap between text and arrow
   };
 
   const dropdownStyle: React.CSSProperties = {
@@ -94,7 +96,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   const arrowStyle: React.CSSProperties = {
     width: '12px',
     height: '12px',
-    marginLeft: tokens.spacing[2],
+    flexShrink: 0, // Prevent arrow from shrinking
     transition: 'transform 0.2s',
     transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
   };
