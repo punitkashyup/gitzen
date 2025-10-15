@@ -289,17 +289,18 @@ const FindingDetailPage: React.FC<FindingDetailPageProps> = ({ findingId: propFi
 
   return (
     <div style={{ 
-      padding: inModal ? tokens.spacing[16] : `${tokens.spacing[20]} ${tokens.spacing[16]}`,
+      padding: inModal ? tokens.spacing[12] : `${tokens.spacing[12]} ${tokens.spacing[12]}`,
       maxWidth: '1400px', 
       margin: '0 auto',
       minHeight: inModal ? 'auto' : '100vh',
       backgroundColor: tokens.colors.neutral[50],
     }}>
-      {/* Header - Compact */}
+      {/* Header - Ultra Compact */}
       <div style={{ 
-        marginBottom: tokens.spacing[20],
-        paddingBottom: tokens.spacing[16],
+        marginBottom: tokens.spacing[12],
+        paddingBottom: tokens.spacing[12],
         borderBottom: `1px solid ${tokens.colors.neutral[200]}`,
+        backgroundColor: tokens.colors.neutral[50],
       }}>
         {!inModal && (
           <button
@@ -307,92 +308,92 @@ const FindingDetailPage: React.FC<FindingDetailPageProps> = ({ findingId: propFi
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: tokens.spacing[6],
-              padding: `${tokens.spacing[6]} ${tokens.spacing[10]}`,
+              gap: tokens.spacing[4],
+              padding: `${tokens.spacing[4]} ${tokens.spacing[8]}`,
               backgroundColor: 'transparent',
               border: 'none',
               color: tokens.colors.primary[600],
               cursor: 'pointer',
-              fontSize: tokens.typography.fontSize.sm.size,
+              fontSize: tokens.typography.fontSize.xs.size,
               fontWeight: tokens.typography.fontWeight.medium,
-              marginBottom: tokens.spacing[12],
+              marginBottom: tokens.spacing[8],
             }}
           >
-            ← Back to Findings
+            ← Back
           </button>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: tokens.spacing[16], marginBottom: tokens.spacing[12] }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: tokens.spacing[12], marginBottom: tokens.spacing[8] }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ 
-              fontSize: tokens.typography.fontSize.xs.size,
+              fontSize: '10px',
               color: tokens.colors.neutral[500],
               fontWeight: tokens.typography.fontWeight.medium,
-              marginBottom: tokens.spacing[4],
+              marginBottom: tokens.spacing[2],
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
             }}>
               Finding #{finding.id}
             </div>
             <h1 style={{ 
-              fontSize: tokens.typography.fontSize.xl.size, 
+              fontSize: tokens.typography.fontSize.lg.size, 
               fontWeight: tokens.typography.fontWeight.bold, 
               color: tokens.colors.neutral[900], 
               marginBottom: 0,
-              lineHeight: '1.4',
+              lineHeight: '1.3',
             }}>
               {finding.secretType} in {finding.repository}
             </h1>
           </div>
 
           {finding.status === 'open' && (
-            <div style={{ display: 'flex', gap: tokens.spacing[8], flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: tokens.spacing[6], flexShrink: 0 }}>
               <button
                 onClick={() => setShowConfirmation('false-positive')}
                 style={{
-                  padding: `${tokens.spacing[8]} ${tokens.spacing[14]}`,
+                  padding: `${tokens.spacing[6]} ${tokens.spacing[10]}`,
                   backgroundColor: tokens.colors.neutral[100],
                   color: tokens.colors.neutral[700],
                   border: `1px solid ${tokens.colors.neutral[300]}`,
-                  borderRadius: tokens.borderRadius.md,
+                  borderRadius: tokens.borderRadius.sm,
                   cursor: 'pointer',
                   fontWeight: tokens.typography.fontWeight.medium,
-                  fontSize: tokens.typography.fontSize.sm.size,
+                  fontSize: tokens.typography.fontSize.xs.size,
                   whiteSpace: 'nowrap',
                 }}
               >
-                Mark as False Positive
+                False Positive
               </button>
               <button
                 onClick={() => setShowConfirmation('resolved')}
                 style={{
-                  padding: `${tokens.spacing[8]} ${tokens.spacing[14]}`,
+                  padding: `${tokens.spacing[6]} ${tokens.spacing[10]}`,
                   backgroundColor: tokens.colors.success[600],
                   color: tokens.colors.neutral[50],
                   border: 'none',
-                  borderRadius: tokens.borderRadius.md,
+                  borderRadius: tokens.borderRadius.sm,
                   cursor: 'pointer',
                   fontWeight: tokens.typography.fontWeight.medium,
-                  fontSize: tokens.typography.fontSize.sm.size,
+                  fontSize: tokens.typography.fontSize.xs.size,
                   whiteSpace: 'nowrap',
                 }}
               >
-                Mark as Resolved
+                Resolve
               </button>
             </div>
           )}
         </div>
 
-        {/* Compact Badges Row */}
-        <div style={{ display: 'flex', gap: tokens.spacing[8], flexWrap: 'wrap', alignItems: 'center' }}>
+        {/* Ultra Compact Badges Row */}
+        <div style={{ display: 'flex', gap: tokens.spacing[6], flexWrap: 'wrap', alignItems: 'center' }}>
           <span
             style={{
-              padding: `${tokens.spacing[4]} ${tokens.spacing[10]}`,
+              padding: `${tokens.spacing[2]} ${tokens.spacing[8]}`,
               backgroundColor: getSeverityColor(finding.severity),
               color: tokens.colors.neutral[50],
               borderRadius: tokens.borderRadius.sm,
-              fontSize: tokens.typography.fontSize.xs.size,
-              fontWeight: tokens.typography.fontWeight.semibold,
+              fontSize: '10px',
+              fontWeight: tokens.typography.fontWeight.bold,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
             }}
@@ -401,27 +402,27 @@ const FindingDetailPage: React.FC<FindingDetailPageProps> = ({ findingId: propFi
           </span>
           <span
             style={{
-              padding: `${tokens.spacing[4]} ${tokens.spacing[10]}`,
+              padding: `${tokens.spacing[2]} ${tokens.spacing[8]}`,
               backgroundColor: getStatusColor(finding.status),
               color: tokens.colors.neutral[50],
               borderRadius: tokens.borderRadius.sm,
-              fontSize: tokens.typography.fontSize.xs.size,
-              fontWeight: tokens.typography.fontWeight.semibold,
+              fontSize: '10px',
+              fontWeight: tokens.typography.fontWeight.bold,
               textTransform: 'capitalize',
             }}
           >
             {finding.status.replace('-', ' ')}
           </span>
-          <div style={{ width: '1px', height: '16px', backgroundColor: tokens.colors.neutral[300] }} />
-          <span style={{ fontSize: tokens.typography.fontSize.xs.size, color: tokens.colors.neutral[600] }}>
-            <strong>Branch:</strong> {finding.branch}
+          <div style={{ width: '1px', height: '12px', backgroundColor: tokens.colors.neutral[300] }} />
+          <span style={{ fontSize: '11px', color: tokens.colors.neutral[600] }}>
+            {finding.branch}
           </span>
-          <span style={{ fontSize: tokens.typography.fontSize.xs.size, color: tokens.colors.neutral[600] }}>
-            <strong>Detected:</strong> {formatDate(finding.detectedAt)}
+          <span style={{ fontSize: '11px', color: tokens.colors.neutral[500] }}>
+            {formatDate(finding.detectedAt)}
           </span>
           {finding.assignee && (
-            <span style={{ fontSize: tokens.typography.fontSize.xs.size, color: tokens.colors.neutral[600] }}>
-              <strong>Assignee:</strong> {finding.assignee}
+            <span style={{ fontSize: '11px', color: tokens.colors.neutral[600] }}>
+              @{finding.assignee}
             </span>
           )}
         </div>
@@ -506,25 +507,25 @@ const FindingDetailPage: React.FC<FindingDetailPageProps> = ({ findingId: propFi
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: tokens.spacing[16] }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 260px', gap: tokens.spacing[12] }}>
         {/* Main Content */}
         <div>
-          {/* Tabs - Compact */}
-          <div style={{ borderBottom: `1px solid ${tokens.colors.neutral[200]}`, marginBottom: tokens.spacing[16] }}>
-            <div style={{ display: 'flex', gap: tokens.spacing[12] }}>
+          {/* Tabs - Ultra Compact */}
+          <div style={{ borderBottom: `1px solid ${tokens.colors.neutral[200]}`, marginBottom: tokens.spacing[12] }}>
+            <div style={{ display: 'flex', gap: tokens.spacing[8] }}>
               {(['details', 'remediation', 'activity'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   style={{
-                    padding: `${tokens.spacing[8]} ${tokens.spacing[12]}`,
+                    padding: `${tokens.spacing[6]} ${tokens.spacing[10]}`,
                     backgroundColor: 'transparent',
                     border: 'none',
                     borderBottom: `2px solid ${activeTab === tab ? tokens.colors.primary[600] : 'transparent'}`,
                     color: activeTab === tab ? tokens.colors.primary[600] : tokens.colors.neutral[600],
                     cursor: 'pointer',
-                    fontWeight: tokens.typography.fontWeight.medium,
-                    fontSize: tokens.typography.fontSize.sm.size,
+                    fontWeight: tokens.typography.fontWeight.semibold,
+                    fontSize: tokens.typography.fontSize.xs.size,
                     textTransform: 'capitalize',
                   }}
                 >
@@ -534,141 +535,153 @@ const FindingDetailPage: React.FC<FindingDetailPageProps> = ({ findingId: propFi
             </div>
           </div>
 
-          {/* Tab Content - Compact */}
+          {/* Tab Content - Ultra Compact */}
           {activeTab === 'details' && (
             <div className="card" style={{ 
-              padding: tokens.spacing[16], 
+              padding: tokens.spacing[12], 
               backgroundColor: tokens.colors.neutral[50], 
-              borderRadius: tokens.borderRadius.md, 
+              borderRadius: tokens.borderRadius.sm, 
               border: `1px solid ${tokens.colors.neutral[200]}`,
-              boxShadow: tokens.shadows.sm,
             }}>
-              {/* Description */}
-              <div style={{ marginBottom: tokens.spacing[16], paddingBottom: tokens.spacing[12], borderBottom: `1px solid ${tokens.colors.neutral[200]}` }}>
-                <label style={{ 
-                  display: 'block', 
-                  fontSize: tokens.typography.fontSize.xs.size, 
-                  fontWeight: tokens.typography.fontWeight.semibold, 
-                  color: tokens.colors.neutral[600], 
-                  marginBottom: tokens.spacing[6],
+              {/* Description - Compact */}
+              <div style={{ marginBottom: tokens.spacing[12], paddingBottom: tokens.spacing[10], borderBottom: `1px solid ${tokens.colors.neutral[200]}` }}>
+                <div style={{ 
+                  fontSize: '10px', 
+                  fontWeight: tokens.typography.fontWeight.bold, 
+                  color: tokens.colors.neutral[500], 
+                  marginBottom: tokens.spacing[4],
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
                 }}>
                   Description
-                </label>
-                <div style={{ fontSize: tokens.typography.fontSize.sm.size, color: tokens.colors.neutral[900], lineHeight: '1.5' }}>
+                </div>
+                <div style={{ fontSize: tokens.typography.fontSize.xs.size, color: tokens.colors.neutral[800], lineHeight: '1.5' }}>
                   {finding.description}
                 </div>
               </div>
 
-              {/* Compact Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: tokens.spacing[12] }}>
+              {/* Ultra Compact 3-Column Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: tokens.spacing[10], marginBottom: tokens.spacing[10] }}>
                 <div>
-                  <label style={{ 
-                    display: 'block', 
-                    fontSize: tokens.typography.fontSize.xs.size, 
-                    fontWeight: tokens.typography.fontWeight.semibold, 
-                    color: tokens.colors.neutral[600], 
-                    marginBottom: tokens.spacing[4],
+                  <div style={{ 
+                    fontSize: '10px', 
+                    fontWeight: tokens.typography.fontWeight.bold, 
+                    color: tokens.colors.neutral[500], 
+                    marginBottom: tokens.spacing[2],
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px',
                   }}>
                     Repository
-                  </label>
-                  <div style={{ fontSize: tokens.typography.fontSize.sm.size, color: tokens.colors.neutral[900], fontFamily: tokens.typography.fontFamily.mono, wordBreak: 'break-all' }}>
+                  </div>
+                  <div style={{ fontSize: tokens.typography.fontSize.xs.size, color: tokens.colors.neutral[900], fontFamily: tokens.typography.fontFamily.mono, wordBreak: 'break-all' }}>
                     {finding.repository}
                   </div>
                 </div>
 
                 <div>
-                  <label style={{ 
-                    display: 'block', 
-                    fontSize: tokens.typography.fontSize.xs.size, 
-                    fontWeight: tokens.typography.fontWeight.semibold, 
-                    color: tokens.colors.neutral[600], 
-                    marginBottom: tokens.spacing[4],
+                  <div style={{ 
+                    fontSize: '10px', 
+                    fontWeight: tokens.typography.fontWeight.bold, 
+                    color: tokens.colors.neutral[500], 
+                    marginBottom: tokens.spacing[2],
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px',
                   }}>
                     Branch
-                  </label>
-                  <div style={{ fontSize: tokens.typography.fontSize.sm.size, color: tokens.colors.neutral[900], fontFamily: tokens.typography.fontFamily.mono }}>
+                  </div>
+                  <div style={{ fontSize: tokens.typography.fontSize.xs.size, color: tokens.colors.neutral[900], fontFamily: tokens.typography.fontFamily.mono }}>
                     {finding.branch}
                   </div>
                 </div>
 
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ 
-                    display: 'block', 
-                    fontSize: tokens.typography.fontSize.xs.size, 
-                    fontWeight: tokens.typography.fontWeight.semibold, 
-                    color: tokens.colors.neutral[600], 
-                    marginBottom: tokens.spacing[4],
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                  }}>
-                    File Path
-                  </label>
-                  <div style={{ fontSize: tokens.typography.fontSize.sm.size, color: tokens.colors.neutral[900], fontFamily: tokens.typography.fontFamily.mono, wordBreak: 'break-all' }}>
-                    {finding.filePath}:<span style={{ color: tokens.colors.primary[600], fontWeight: tokens.typography.fontWeight.bold }}>{ finding.lineNumber}</span>
-                  </div>
-                </div>
-
                 <div>
-                  <label style={{ 
-                    display: 'block', 
-                    fontSize: tokens.typography.fontSize.xs.size, 
-                    fontWeight: tokens.typography.fontWeight.semibold, 
-                    color: tokens.colors.neutral[600], 
-                    marginBottom: tokens.spacing[4],
+                  <div style={{ 
+                    fontSize: '10px', 
+                    fontWeight: tokens.typography.fontWeight.bold, 
+                    color: tokens.colors.neutral[500], 
+                    marginBottom: tokens.spacing[2],
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px',
                   }}>
                     Commit
-                  </label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacing[4] }}>
-                    <span style={{ fontSize: tokens.typography.fontSize.sm.size, color: tokens.colors.neutral[900], fontFamily: tokens.typography.fontFamily.mono }}>
-                      {finding.commitHash}
-                    </span>
-                    {finding.commitUrl && (
-                      <a href={finding.commitUrl} target="_blank" rel="noopener noreferrer" style={{ color: tokens.colors.primary[600], fontSize: tokens.typography.fontSize.xs.size, textDecoration: 'none', fontWeight: tokens.typography.fontWeight.medium }}>
-                        View on GitHub →
-                      </a>
-                    )}
+                  </div>
+                  <div style={{ fontSize: tokens.typography.fontSize.xs.size, color: tokens.colors.neutral[900], fontFamily: tokens.typography.fontFamily.mono }}>
+                    {finding.commitHash}
                   </div>
                 </div>
+              </div>
+
+              {/* File Path - Full Width */}
+              <div style={{ 
+                padding: tokens.spacing[8], 
+                backgroundColor: tokens.colors.neutral[900], 
+                borderRadius: tokens.borderRadius.sm,
+                marginBottom: tokens.spacing[10],
+              }}>
+                <div style={{ 
+                  fontSize: '9px', 
+                  fontWeight: tokens.typography.fontWeight.bold, 
+                  color: tokens.colors.neutral[400], 
+                  marginBottom: tokens.spacing[2],
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}>
+                  File Location
+                </div>
+                <div style={{ fontSize: tokens.typography.fontSize.xs.size, color: tokens.colors.neutral[50], fontFamily: tokens.typography.fontFamily.mono, wordBreak: 'break-all' }}>
+                  {finding.filePath}:<span style={{ color: tokens.colors.warning[500], fontWeight: tokens.typography.fontWeight.bold }}>{finding.lineNumber}</span>
+                </div>
+              </div>
+
+              {/* Links and Timestamps - 2 Column */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: tokens.spacing[10] }}>
+                {finding.commitUrl && (
+                  <div>
+                    <div style={{ 
+                      fontSize: '10px', 
+                      fontWeight: tokens.typography.fontWeight.bold, 
+                      color: tokens.colors.neutral[500], 
+                      marginBottom: tokens.spacing[2],
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                    }}>
+                      GitHub
+                    </div>
+                    <a href={finding.commitUrl} target="_blank" rel="noopener noreferrer" style={{ color: tokens.colors.primary[600], fontSize: tokens.typography.fontSize.xs.size, textDecoration: 'none', fontWeight: tokens.typography.fontWeight.medium }}>
+                      View Commit →
+                    </a>
+                  </div>
+                )}
 
                 {finding.prUrl && (
                   <div>
-                    <label style={{ 
-                      display: 'block', 
-                      fontSize: tokens.typography.fontSize.xs.size, 
-                      fontWeight: tokens.typography.fontWeight.semibold, 
-                      color: tokens.colors.neutral[600], 
-                      marginBottom: tokens.spacing[4],
+                    <div style={{ 
+                      fontSize: '10px', 
+                      fontWeight: tokens.typography.fontWeight.bold, 
+                      color: tokens.colors.neutral[500], 
+                      marginBottom: tokens.spacing[2],
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px',
                     }}>
                       Pull Request
-                    </label>
-                    <a href={finding.prUrl} target="_blank" rel="noopener noreferrer" style={{ color: tokens.colors.primary[600], fontSize: tokens.typography.fontSize.sm.size, textDecoration: 'none', fontWeight: tokens.typography.fontWeight.medium }}>
-                      View Pull Request →
+                    </div>
+                    <a href={finding.prUrl} target="_blank" rel="noopener noreferrer" style={{ color: tokens.colors.primary[600], fontSize: tokens.typography.fontSize.xs.size, textDecoration: 'none', fontWeight: tokens.typography.fontWeight.medium }}>
+                      View PR →
                     </a>
                   </div>
                 )}
 
                 <div>
-                  <label style={{ 
-                    display: 'block', 
-                    fontSize: tokens.typography.fontSize.xs.size, 
-                    fontWeight: tokens.typography.fontWeight.semibold, 
-                    color: tokens.colors.neutral[600], 
-                    marginBottom: tokens.spacing[4],
+                  <div style={{ 
+                    fontSize: '10px', 
+                    fontWeight: tokens.typography.fontWeight.bold, 
+                    color: tokens.colors.neutral[500], 
+                    marginBottom: tokens.spacing[2],
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px',
                   }}>
                     Detected
-                  </label>
+                  </div>
                   <div style={{ fontSize: tokens.typography.fontSize.sm.size, color: tokens.colors.neutral[600] }}>
                     {formatDate(finding.detectedAt)}
                   </div>
@@ -830,33 +843,34 @@ const FindingDetailPage: React.FC<FindingDetailPageProps> = ({ findingId: propFi
           )}
         </div>
 
-        {/* Sidebar - Compact */}
+        {/* Sidebar - Ultra Compact */}
         <div>
           {/* Related Findings */}
           {relatedFindings.length > 0 && (
             <div className="card" style={{ 
-              padding: tokens.spacing[12], 
+              padding: tokens.spacing[10], 
               backgroundColor: tokens.colors.neutral[50], 
-              borderRadius: tokens.borderRadius.md, 
+              borderRadius: tokens.borderRadius.sm, 
               border: `1px solid ${tokens.colors.neutral[200]}`, 
-              marginBottom: tokens.spacing[12],
-              boxShadow: tokens.shadows.sm,
+              marginBottom: tokens.spacing[10],
             }}>
               <h3 style={{ 
-                fontSize: tokens.typography.fontSize.sm.size, 
-                fontWeight: tokens.typography.fontWeight.semibold, 
-                marginBottom: tokens.spacing[10],
-                color: tokens.colors.neutral[700],
+                fontSize: '11px', 
+                fontWeight: tokens.typography.fontWeight.bold, 
+                marginBottom: tokens.spacing[8],
+                color: tokens.colors.neutral[600],
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
               }}>
-                Related Findings ({relatedFindings.length})
+                Related ({relatedFindings.length})
               </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacing[8] }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacing[6] }}>
                 {relatedFindings.map((relatedFinding) => (
                   <Link
                     key={relatedFinding.id}
                     to={`/findings/${relatedFinding.id}`}
                     style={{
-                      padding: tokens.spacing[10],
+                      padding: tokens.spacing[8],
                       backgroundColor: tokens.colors.neutral[100],
                       borderRadius: tokens.borderRadius.sm,
                       textDecoration: 'none',
@@ -866,10 +880,10 @@ const FindingDetailPage: React.FC<FindingDetailPageProps> = ({ findingId: propFi
                     onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = tokens.colors.neutral[200]; }}
                     onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = tokens.colors.neutral[100]; }}
                   >
-                    <div style={{ fontSize: tokens.typography.fontSize.xs.size, fontWeight: tokens.typography.fontWeight.medium, color: tokens.colors.neutral[900], marginBottom: tokens.spacing[2] }}>
+                    <div style={{ fontSize: '11px', fontWeight: tokens.typography.fontWeight.semibold, color: tokens.colors.neutral[900], marginBottom: tokens.spacing[2], lineHeight: '1.3' }}>
                       {relatedFinding.secretType}
                     </div>
-                    <div style={{ fontSize: tokens.typography.fontSize.xs.size, color: tokens.colors.neutral[600], marginBottom: tokens.spacing[2] }}>
+                    <div style={{ fontSize: '10px', color: tokens.colors.neutral[600], marginBottom: tokens.spacing[2] }}>
                       {relatedFinding.repository}
                     </div>
                     <span
@@ -892,67 +906,68 @@ const FindingDetailPage: React.FC<FindingDetailPageProps> = ({ findingId: propFi
             </div>
           )}
 
-          {/* Quick Actions - Compact */}
+          {/* Quick Actions - Ultra Compact */}
           <div className="card" style={{ 
-            padding: tokens.spacing[12], 
+            padding: tokens.spacing[10], 
             backgroundColor: tokens.colors.neutral[50], 
-            borderRadius: tokens.borderRadius.md, 
+            borderRadius: tokens.borderRadius.sm, 
             border: `1px solid ${tokens.colors.neutral[200]}`,
-            boxShadow: tokens.shadows.sm,
           }}>
             <h3 style={{ 
-              fontSize: tokens.typography.fontSize.sm.size, 
-              fontWeight: tokens.typography.fontWeight.semibold, 
-              marginBottom: tokens.spacing[10],
-              color: tokens.colors.neutral[700],
+              fontSize: '11px', 
+              fontWeight: tokens.typography.fontWeight.bold, 
+              marginBottom: tokens.spacing[8],
+              color: tokens.colors.neutral[600],
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
             }}>
-              Quick Actions
+              Actions
             </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacing[6] }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacing[4] }}>
               <button
                 style={{
-                  padding: tokens.spacing[8],
+                  padding: tokens.spacing[6],
                   backgroundColor: tokens.colors.neutral[100],
                   border: `1px solid ${tokens.colors.neutral[300]}`,
                   borderRadius: tokens.borderRadius.sm,
                   cursor: 'pointer',
-                  fontSize: tokens.typography.fontSize.xs.size,
+                  fontSize: '11px',
                   textAlign: 'left',
                   color: tokens.colors.neutral[700],
                   fontWeight: tokens.typography.fontWeight.medium,
                 }}
               >
-                Copy Finding ID
+                Copy ID
               </button>
               <button
                 style={{
-                  padding: tokens.spacing[8],
+                  padding: tokens.spacing[6],
                   backgroundColor: tokens.colors.neutral[100],
                   border: `1px solid ${tokens.colors.neutral[300]}`,
                   borderRadius: tokens.borderRadius.sm,
                   cursor: 'pointer',
-                  fontSize: tokens.typography.fontSize.xs.size,
+                  fontSize: '11px',
                   textAlign: 'left',
                   color: tokens.colors.neutral[700],
                   fontWeight: tokens.typography.fontWeight.medium,
                 }}
               >
-                Share Finding
+                Share
               </button>
               <button
                 style={{
-                  padding: tokens.spacing[8],
+                  padding: tokens.spacing[6],
                   backgroundColor: tokens.colors.neutral[100],
                   border: `1px solid ${tokens.colors.neutral[300]}`,
                   borderRadius: tokens.borderRadius.sm,
                   cursor: 'pointer',
-                  fontSize: tokens.typography.fontSize.xs.size,
+                  fontSize: '11px',
                   textAlign: 'left',
                   color: tokens.colors.neutral[700],
                   fontWeight: tokens.typography.fontWeight.medium,
                 }}
               >
-                Export Details
+                Export
               </button>
             </div>
           </div>
