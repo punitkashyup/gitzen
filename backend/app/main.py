@@ -124,12 +124,13 @@ async def root():
 # API Router Registration
 # ============================================================================
 
-from app.routers import auth, findings, statistics
+from app.routers import auth, findings, statistics, github
 
-# Register auth, findings and statistics routers
+# Register auth, findings, statistics and github routers
 app.include_router(auth.router, prefix=settings.API_PREFIX)
 app.include_router(findings.router, prefix=settings.API_PREFIX)
 app.include_router(statistics.router, prefix=settings.API_PREFIX)
+app.include_router(github.router, prefix=settings.API_PREFIX)
 
 # TODO: Register additional routers as they are created
 # from app.routers import repositories, scans, users

@@ -24,7 +24,10 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center space-x-4">
               {/* User Profile */}
-              <div className="flex items-center space-x-3">
+              <a
+                href="/profile"
+                className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors"
+              >
                 {user?.avatar_url && (
                   <img
                     src={user.avatar_url}
@@ -35,7 +38,7 @@ export default function DashboardPage() {
                 <span className="text-sm font-medium text-gray-700">
                   {user?.username}
                 </span>
-              </div>
+              </a>
               {/* Logout Button */}
               <button
                 onClick={handleLogout}
