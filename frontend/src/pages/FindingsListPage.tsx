@@ -555,21 +555,24 @@ export const FindingsListPage: React.FC = () => {
           </select>
 
           {/* Action Buttons */}
-          <button 
-            onClick={() => setShowFalsePositives(!showFalsePositives)}
-            style={{
-              ...buttonStyle, 
-              flex: '0 0 auto',
-              backgroundColor: showFalsePositives ? tokens.colors.status.falsePositive : tokens.colors.neutral[100],
-              color: showFalsePositives ? tokens.colors.neutral[0] : tokens.colors.neutral[700],
-              borderColor: showFalsePositives ? tokens.colors.status.falsePositive : tokens.colors.neutral[300],
-              display: 'flex',
-              alignItems: 'center',
-              gap: tokens.spacing[2],
-            }}
-          >
-            {showFalsePositives ? '✓' : '○'} Show False Positives
-          </button>
+          {/* Only show false positives toggle when no status filter is applied */}
+          {!filters.status && (
+            <button 
+              onClick={() => setShowFalsePositives(!showFalsePositives)}
+              style={{
+                ...buttonStyle, 
+                flex: '0 0 auto',
+                backgroundColor: showFalsePositives ? tokens.colors.status.falsePositive : tokens.colors.neutral[100],
+                color: showFalsePositives ? tokens.colors.neutral[0] : tokens.colors.neutral[700],
+                borderColor: showFalsePositives ? tokens.colors.status.falsePositive : tokens.colors.neutral[300],
+                display: 'flex',
+                alignItems: 'center',
+                gap: tokens.spacing[2],
+              }}
+            >
+              {showFalsePositives ? '✓' : '○'} Show False Positives
+            </button>
+          )}
           {hasActiveFilters() && (
             <button onClick={clearFilters} style={{...buttonStyle, flex: '0 0 auto'}}>
               Clear Filters
@@ -741,7 +744,11 @@ export const FindingsListPage: React.FC = () => {
           <span style={{ 
             padding: `0 ${tokens.spacing[2]}`,
             fontSize: tokens.typography.fontSize.sm.size,
-            color: tokens.colors.neutral[600]
+            color: tokens.colors.neutral[600],
+            display: 'flex',
+            alignItems: 'center',
+            minWidth: '100px',
+            justifyContent: 'center',
           }}>
             Page {currentPage} of {totalPages}
           </span>
