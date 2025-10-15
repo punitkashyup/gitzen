@@ -1,7 +1,39 @@
+/* Prevent layout shift and flickering */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  /* Prevent horizontal overflow that causes layout shift */
+  overflow-x: hidden;
+  width: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  /* Prevent layout shift from scrollbar */
+  overflow-y: scroll;
+  width: 100%;
+}
+
+/* Prevent flash of unstyled content (FOUC) */
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  /* Prevent content jump during load */
+  opacity: 1;
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .app-header {

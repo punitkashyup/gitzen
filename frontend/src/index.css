@@ -1,6 +1,11 @@
-/* Import Fonts First */
+/* Import Fonts First with font-display: swap to prevent FOUT */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap');
+
+/* Prevent layout shift during font loading */
+* {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+}
 
 /* Import Design System Globals */
 @import './design/globals.css';
@@ -114,6 +119,21 @@
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
     min-height: 100vh;
+    /* Prevent layout shift */
+    overflow-x: hidden;
+    overflow-y: scroll;
+  }
+  
+  /* Prevent flash of unstyled content */
+  #root {
+    min-height: 100vh;
+    opacity: 1;
+    transition: opacity 0.1s ease-in;
+  }
+  
+  /* Loading state */
+  #root:empty {
+    opacity: 0;
   }
   
   code {
