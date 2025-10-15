@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import tokens from '../design/tokens';
 
 // Types for our findings data
@@ -107,6 +108,7 @@ const mockFindings: Finding[] = [
 ];
 
 export const FindingsListPage: React.FC = () => {
+  const navigate = useNavigate();
   const [findings] = useState<Finding[]>(mockFindings);
   const [isLoading] = useState(false);
   const [filters, setFilters] = useState<FindingsFilters>({
@@ -563,7 +565,20 @@ export const FindingsListPage: React.FC = () => {
             </thead>
             <tbody>
               {paginatedFindings.map(finding => (
-                <tr key={finding.id}>
+                <tr 
+                  key={finding.id}
+                  onClick={() => navigate(`/findings/${finding.id}`)}
+                  style={{ 
+                    cursor: 'pointer',
+                    transition: `background-color ${tokens.transitions.duration[200]}`,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = tokens.colors.neutral[50];
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                >
                   <td style={tdStyle}>
                     <div style={{ fontWeight: tokens.typography.fontWeight.medium }}>
                       {finding.repository}
@@ -602,6 +617,10 @@ export const FindingsListPage: React.FC = () => {
                   <td style={tdStyle}>
                     <div style={{ display: 'flex', gap: tokens.spacing[2] }}>
                       <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/findings/${finding.id}`);
+                        }}
                         style={{
                           ...buttonStyle,
                           padding: `${tokens.spacing[1]} ${tokens.spacing[2]}`,
@@ -611,6 +630,10 @@ export const FindingsListPage: React.FC = () => {
                         View
                       </button>
                       <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Handle edit action
+                        }}
                         style={{
                           ...buttonStyle,
                           padding: `${tokens.spacing[1]} ${tokens.spacing[2]}`,
